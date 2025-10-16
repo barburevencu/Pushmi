@@ -1,36 +1,17 @@
-from os import name
-import random, csv, copy
+import random, csv
 from constants import *
 from itertools import groupby, pairwise, permutations, product, combinations
-from typing import List, Dict, Any, Tuple, Optional
 
 def shuffled_copies(lst, n):
-    """Return n unique shuffled versions of lst (up to all possible permutations)."""
-    if not lst:
-        return []
-    
-    def make_hashable(item):
-        """Convert list items to hashable tuples for comparison."""
-        if isinstance(item, list):
-            return tuple(item)
-        return item
-    
+    """Return n unique shuffled versions of lst."""
     copies, seen = [], set()
-    max_attempts = min(n * 100, 100000)  # Prevent infinite loops
-    attempts = 0
-    
-    while len(copies) < n and attempts < max_attempts:
+    while len(copies) < n:
         new_list = lst[:]
         random.shuffle(new_list)
-        sig = tuple(make_hashable(x) for x in new_list)
+        sig = tuple(tuple(x) if isinstance(x, list) else x for x in new_list)
         if sig not in seen:
             seen.add(sig)
             copies.append(new_list)
-        attempts += 1
-    
-    if len(copies) < n:
-        print(f"Warning: Only generated {len(copies)}/{n} unique permutations")
-    
     return copies
 
 def mirror(obj, elem1='A', elem2='B'):
@@ -43,22 +24,9 @@ def mirror(obj, elem1='A', elem2='B'):
         return tuple(mirror(x, elem1, elem2) for x in obj)
     return elem2 if obj == elem1 else elem1 if obj == elem2 else obj
 
-def balance_vars(n_vars: int = 4, n_groups: int = 6, mirrored: bool = True) -> List[List[str]]:
-    """
-    Generate balanced combinations of A/B factors for counterbalancing.
-    
-    Args:
-        n_vars: Number of binary (A/B) variables to counterbalance
-        n_groups: Number of distinct shuffled orderings to create
-        mirrored: If True, create mirrored versions (A↔B) and ensure
-                  no adjacent pairs are mirrors of each other
-    
-    Returns:
-        List of factor combinations, each being a list of A/B strings
-    
-    Raises:
-        ValueError: If valid shuffling cannot be found after 10000 attempts
-    """
+def balance_vars(n_vars, n_groups, mirrored):
+    """Generate balanced combinations of n_vars A/B factors for counterbalancing across n_groups. 
+    Doubles the output with n_vars B/A factors if mirrored."""
     full_factor = [list(prod) for prod in product(['A', 'B'], repeat=n_vars)]
     shuffled = shuffled_copies(full_factor, n_groups)
     
@@ -70,26 +38,18 @@ def balance_vars(n_vars: int = 4, n_groups: int = 6, mirrored: bool = True) -> L
     
     for _ in range(10000):
         random.shuffle(combined)
-        valid_shuffle = all(
-            combined[i] != mirror(combined[i + 1]) 
-            for i in range(0, len(combined), 2)
-        )
-        if valid_shuffle:
+        if all(combined[i] != mirror(combined[i + 1]) for i in range(0, len(combined), 2)):
             return combined
-    
-    raise ValueError(f"Couldn't find valid shuffling after 10000 attempts. "
-                     f"Try reducing n_groups or n_vars.")
         
 def is_balanced(trials, cols=('assignment_order', 'agent', 'patient', 'correct_key', 'central_shape')):
     """Return True if each level of each column has equal 'pousse' and 'tire' outcomes."""
     for col in cols:
-        # sort so groupby works
         sorted_trials = sorted(trials, key=lambda t: t[col])
         for _, group in groupby(sorted_trials, key=lambda t: t[col]):
             pousse = tire = 0
             for t in group:
                 pousse += (t['outcome'] == 'pousse')
-                tire   += (t['outcome'] == 'tire')
+                tire += (t['outcome'] == 'tire')
             if pousse != tire:
                 return False
     return True
@@ -99,11 +59,10 @@ def map_AB(trials, mappings):
     for t in trials:
         for col, mapping in mappings.items():
             if col in t:
-                v = t[col]
-                t[col] = mapping.get(v, v)
+                t[col] = mapping.get(t[col], t[col])
 
 def add_numbers(trials, start_from=1):
-    """Shuffle trials and assign block_number and trial_number."""
+    """Assign block_number and trial_number."""
     for i, trial in enumerate(trials):
         trial["block_number"] = (i // BLOCK_SIZE) + start_from
         trial["trial_number"] = (i % BLOCK_SIZE) + 1
@@ -115,16 +74,11 @@ def sort_key(s):
 
 def sort_trials(trials):
     """Sort trials by shape_pair, agent_shape, agent, patient, shape1-shape2, assignment_order."""
-    trials.sort(key=lambda d: (
-          d['shape_pair'], 
-          d["agent_shape"], 
-          d["agent"], d["patient"], 
-          d['shape1'] + "-" + d['shape2'], 
-          d["assignment_order"]
-        ))
+    trials.sort(key=lambda d: (d['shape_pair'], d["agent_shape"], d["agent"], d["patient"], 
+                                d['shape1'] + "-" + d['shape2'], d["assignment_order"]))
 
 def starts_with_vowel(word):
-    """Return True if a word starts with a vowel (a, e, i, o, u, y, é, é)."""
+    """Return True if a word starts with a vowel."""
     return word[0].lower() in "aeiouhyéè"
 
 def article(noun):
@@ -140,7 +94,7 @@ def article(noun):
 def outcome(trial):
     """Return the outcome verb ('pousse' or 'tire') for a trial."""
     agent_central = (trial["central_shape"] == trial["agent_shape"])
-    same_side  = (trial["movement"] == trial["lateral_position"])
+    same_side = (trial["movement"] == trial["lateral_position"])
     return "pousse" if (agent_central == same_side) else "tire"
 
 def event_description(trial):
@@ -159,7 +113,6 @@ def test_sentence(trial):
             patient = swap.get(patient, patient)
         elif change == "verb":
             verb = swap.get(verb, verb)
-
     return f"{article(agent)} {verb} {article(patient).lower()}"
 
 def check_repetitions(lst, max_consecutive):
@@ -171,18 +124,15 @@ def check_spacing(lst, max_spacing):
     repeat_indices = [i for i, (a, b) in enumerate(pairwise(lst), 1) if a == b]
     return all(j - i <= max_spacing for i, j in pairwise(repeat_indices))
 
-def randomize(lst1, lst2, max_consecutive=1e10, max_spacing=1e10, max_attempts=100000):
-    """Return a random permutation of lst with constraints on repetitions and spacing."""
-    for _ in range(max_attempts):
-        a = lst1[:]
-        b = lst2[:]
+def randomize(lst1, lst2, max_consecutive=1e10, max_spacing=1e10):
+    """Return a random permutation with constraints on repetitions and spacing."""
+    for _ in range(100000):
+        a, b = lst1[:], lst2[:]
         random.shuffle(a)
         random.shuffle(b)
-        pairs = zip(a, b)        
-        cb = [x for pair in pairs for x in pair]
+        cb = [x for pair in zip(a, b) for x in pair]
         if check_repetitions(cb, max_consecutive) and check_spacing(cb, max_spacing):
             return cb
-    raise RuntimeError("randomize() could not satisfy constraints in max_attempts")
 
 def cb_localizer(subject_id, n_trials, n_blocks, start_block=1):
     """Generate a counterbalanced list of localizer trials."""
@@ -218,23 +168,23 @@ def cb_base(phase, subject_id, shapes, animals, tools, double=True):
     agent_shapes = ["shape1", "shape2"]
     assignment_order = ["symbol_first", "referent_first"]
     trials = [
-                {
-                    "subject_id": subject_id,
-                    "shape_pair": sort_key(shape1 + "-" + shape2),
-                    "trial_type": phase,
-                    "shape1": shape1, 
-                    "shape2": shape2,
-                    "agent": animal,
-                    "patient": tool,
-                    "label1": animal if agent == 'shape1' else tool,
-                    "label2": tool if agent == 'shape1' else animal,
-                    "agent_shape": agent,
-                    "patient_shape": 'shape2' if agent == 'shape1' else 'shape1',
-                    "assignment_order": order
-                }
-                for (shape1, shape2), animal, tool, agent, order in 
-                product(shape_pairs, animals, tools, agent_shapes, assignment_order)
-            ]
+        {
+            "subject_id": subject_id,
+            "shape_pair": sort_key(shape1 + "-" + shape2),
+            "trial_type": phase,
+            "shape1": shape1, 
+            "shape2": shape2,
+            "agent": animal,
+            "patient": tool,
+            "label1": animal if agent == 'shape1' else tool,
+            "label2": tool if agent == 'shape1' else animal,
+            "agent_shape": agent,
+            "patient_shape": 'shape2' if agent == 'shape1' else 'shape1',
+            "assignment_order": order
+        }
+        for (shape1, shape2), animal, tool, agent, order in 
+        product(shape_pairs, animals, tools, agent_shapes, assignment_order)
+    ]
             
     sort_trials(trials)
 
@@ -264,26 +214,21 @@ def cb_training(subject_id, start_block=0):
                                     ANIMALS_TRAINING, TOOLS_TRAINING, double=False)
 
     random.shuffle(trials)
-    
-    # Determine block boundaries
     block_1_end = TRAINING_BLOCK_1_SIZE
     block_2_end = block_1_end + TRAINING_BLOCK_2_SIZE
 
     for ti, t in enumerate(trials, 1):
-        # Determine block configuration (block_index, trial_type, trial_number)
         if ti <= block_1_end:
-            block_info = (0, "training_no_assignment", ti)
+            bi, trial_type, trial_num = 0, "training_no_assignment", ti
         elif ti <= block_2_end:
-            block_info = (1, "training_assignment", ti - block_1_end)
+            bi, trial_type, trial_num = 1, "training_assignment", ti - block_1_end
         else:
-            block_info = (2, "training_no_animation", ti - block_2_end)
+            bi, trial_type, trial_num = 2, "training_no_animation", ti - block_2_end
         
-        bi, trial_type, trial_num = block_info
         t["block_number"] = bi
         t["trial_type"] = trial_type
         t["trial_number"] = trial_num
         
-        # For block 0 (shapes only), use shapes as labels
         if bi == 0:
             t["label1"] = t["shape1"]
             t["label2"] = t["shape2"]
@@ -297,25 +242,10 @@ def cb_training(subject_id, start_block=0):
 
     return trials
 
-def cb_main(subject_id, start_block=1, double=True, max_attempts=1000):
-    """
-    Generate counterbalanced main experiment trials with attempt limit.
-    
-    Args:
-        subject_id: Unique identifier for the subject
-        start_block: Starting block number
-        double: Whether to include mirrored trials
-        max_attempts: Maximum number of attempts to find balanced design
-    
-    Returns:
-        List of counterbalanced trial dictionaries
-    
-    Raises:
-        RuntimeError: If balanced design cannot be found within max_attempts
-    """
-    for _ in range(max_attempts):
-        trials, change_order = cb_base("test", subject_id, SHAPES, 
-                                        ANIMALS, TOOLS, double=double)
+def cb_main(subject_id, start_block=1, double=True):
+    """Generate counterbalanced main experiment trials."""
+    for _ in range(1000):
+        trials, change_order = cb_base("test", subject_id, SHAPES, ANIMALS, TOOLS, double=double)
 
         for t in trials:
             t["outcome"] = outcome(t)
@@ -323,15 +253,11 @@ def cb_main(subject_id, start_block=1, double=True, max_attempts=1000):
             t["ground_truth"] = event_description(t)
             t["test_sentence"] = test_sentence(t)
 
-        if is_balanced(trials, cols=['assignment_order', 'agent', 'patient', 
-                                      'correct_key', 'central_shape']):
+        if is_balanced(trials, cols=['assignment_order', 'agent', 'patient', 'correct_key', 'central_shape']):
             break
-    else:
-        raise RuntimeError(f"Could not find balanced design after {max_attempts} attempts")
 
     random.shuffle(trials)
     add_numbers(trials, start_from=start_block)
-
     return trials
 
 if __name__ == '__main__':
