@@ -61,11 +61,6 @@ class HardwareManager:
     def __init__(self, subject_id, meg=False, eyetracker=False):
         """
         Initialize hardware manager.
-        
-        Args:
-            subject_id: Unique identifier for the subject
-            meg: Whether to initialize MEG hardware
-            eyetracker: Whether to initialize eyetracker hardware
         """
         self.subject_id = subject_id
         self.use_meg = meg
