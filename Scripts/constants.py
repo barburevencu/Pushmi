@@ -24,16 +24,12 @@ TRAINING_BLOCK_3_SIZE = 20  # Phase 3: No animation
 # DISPLAY & VISUAL PARAMETERS
 # =============================================================================
 
-SCALE_FACTOR = 1.5
+SCALE_FACTOR = 2
 
 # Colors (RGB tuples)
 GREEN = (153, 229, 153)      # Correct feedback
 RED = (240, 128, 128)        # Incorrect feedback
 LIGHTGRAY = (211, 211, 211)  # Timeout feedback
-
-# Position and size
-OFFSET_X = 0  # Horizontal offset for all stimuli (was -330)
-ORIGIN = (0 + OFFSET_X, 0)
 
 # Stimulus dimensions (scaled)
 TEXTSIZE = int(24 * SCALE_FACTOR)

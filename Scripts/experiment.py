@@ -170,11 +170,13 @@ if __name__ == '__main__':
     subject_id, flags = args.subject_id, set(extras)
     
     if 'fullscreen' in flags:
-        scale_instr = 0.8
-        logger.disabled = False
+        OFFSET_X, ORIGIN = -330, (-330, 0)
+        SCALE_INSTR = 0.8
+        logger.disabled = True
         io.defaults.datafile_directory = io.defaults.eventfile_directory = f"../Data/Pilot/Behavior/sub-{subject_id:02d}"
     else:
-        scale_instr = 0.5
+        OFFSET_X, ORIGIN = 0, (0, 0)
+        SCALE_INSTR = 0.5
         control.set_develop_mode(skip_wait_methods=False)
 
     hardware = HardwareManager(subject_id, 'meg' in flags, 'eyetracker' in flags).setup()
@@ -199,7 +201,7 @@ if __name__ == '__main__':
     words = {name: word(name) for name in SENTENCE_STIMS}
     fixation = preload(stimuli.Circle(2.5 * SCALE_FACTOR, position=ORIGIN, colour=C_GREY))
     
-    instructions = {name: preload(picture(f"instr_{num}", scale_instr)) for name, num in INSTRUCTIONS.items()}
+    instructions = {name: preload(picture(f"instr_{num}", SCALE_INSTR)) for name, num in INSTRUCTIONS.items()}
     feedback = {label: preload(stimuli.Rectangle((200, 100), position=ORIGIN, colour=colour))
                 for label, colour in [('timeout', LIGHTGRAY), ('correct', GREEN), ('incorrect', RED)]}
     pause_message = preload(stimuli.TextScreen("Pause", "Prenez un moment pour vous reposer",
