@@ -1,0 +1,28 @@
+# --- Ignore the Data folder ---
+Data/
+
+# --- Python cache and build files ---
+__pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# --- macOS system files ---
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# --- VS Code / IDE files ---
+.vscode/
+.idea/
+
+# --- Virtual environments ---
+.env/
+.venv/
+
+# --- Logs and temp files ---
+*.log
+*.tmp
