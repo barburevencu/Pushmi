@@ -3,6 +3,7 @@ from expyriment import control, design, stimuli, io
 from expyriment.misc.constants import C_BLACK, C_WHITE, C_GREY, K_f, K_j, K_SPACE
 from constants import *
 from hardware import HardwareManager
+
 import logging
 logging.basicConfig(level=logging.INFO, format="%(message)s", force=True)
 logger = logging.getLogger()
