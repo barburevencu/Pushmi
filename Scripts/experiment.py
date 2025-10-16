@@ -22,7 +22,7 @@ def picture(name, scale_factor):
     return preload(stim)
 
 def word(name):
-    return preload(stimuli.TextLine(text=name, position=ORIGIN, text_size=TEXTSIZE))
+    return preload(stimuli.TextLine(text=ACCENTS.get(name, name), position=ORIGIN, text_size=TEXTSIZE))
 
 def diff(t0):
     return exp.clock.time - t0
@@ -220,7 +220,7 @@ if __name__ == '__main__':
             }
         et = eyelink.EyeLinkWrapper(cfg_eyelink)
 
-    localizer = 'localizer' in flags
+    localizer = True #'localizer' in flags
     training = 'training' in flags
     fullscreen = 'fullscreen' in flags
 

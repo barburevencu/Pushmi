@@ -10,7 +10,7 @@ OFFSET_X = 0 #-330
 
 TEXTSIZE = int(24 * SCALE_FACTOR)
 SHAPE_WIDTH = int(40 * SCALE_FACTOR)
-IMAGE_WIDTH = int(54 * SCALE_FACTOR)
+IMAGE_WIDTH = int(60 * SCALE_FACTOR)
 HALFWIDTH = SHAPE_WIDTH // 2
 DISPLACEMENT = int(100 * SCALE_FACTOR)
 
@@ -39,7 +39,7 @@ FEEDBACK_T = 200
 # Stimuli
 ANIMALS = ('louve', 'poule')
 TOOLS = ('tasse', 'malle')
-SHAPES = ('carré', 'cercle', 'étoile', 'croix')
+SHAPES = ('carre', 'cercle', 'etoile', 'croix')
 
 SHAPES_TRAINING = ('pentagone', 'losange')
 ANIMALS_TRAINING = ('mouton', 'pigeon')
@@ -56,6 +56,8 @@ NOUN_PAIRS = [
     ("mouton", "pigeon"), ("marteau", "couteau"), 
     ("losange", "ellipse"), ("pentagone", "hexagone"),
 ]
+
+ACCENTS = {"carre": "carré", "etoile": "étoile"}
 
 SWAP_MAP = {
     "nouns": {a: b for a, b in NOUN_PAIRS} | {b: a for a, b in NOUN_PAIRS},
