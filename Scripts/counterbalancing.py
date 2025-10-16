@@ -2,55 +2,7 @@ from os import name
 import random, csv, copy
 from constants import *
 from itertools import groupby, pairwise, permutations, product, combinations
-
-"""
-Constants for Pushmi MEG counterbalancing and sentence generation.
-
-Stimulus sets
--------------
-ANIMALS: Animal labels used in sentences/trials.
-TOOLS: Object labels used in sentences/trials.
-SHAPES: Visual shapes used to form ordered/ unordered pairs in trials.
-STIMS: Convenience union of ANIMALS + TOOLS + SHAPES.
-
-Grammatical gender & swapping
--------------------------
-MASC_NAMES: Nouns that take the masculine article "Le".
-FEM_NAMES: Nouns that take the feminine article "La".
-NOUN_PAIRS: Bidirectional noun swaps (A↔B) used to generate "changed" test sentences.
-SWAP_MAP: Lookup tables for one-step swaps
-    - "nouns": bidirectional swaps built from NOUN_PAIRS
-    - "verb" : {'pousse'↔'tire'} to flip the predicate in test sentences.
-
-Sentence vocabulary
--------------------
-SENTENCE_STIMS: Tokens that may appear in rendered sentences (shapes, nouns, articles, verbs).
-
-Key mapping
--------------------
-KEYMAP: Maps device/readout keys to logical responses
-    ord('f') → 'left', ord('j') → 'right', 'LR' → 'left', 'RR' → 'right'.
-
-Counterbalancing I/O schema
----------------------------
-COLNAMES:
-    Column order for exported trial CSVs:
-      [
-        "subject_id", "trial_type", "block_number", "trial_number",
-        "assignment_order", "shape_pair", "shape1", "label1", "shape2", "label2",
-        "agent", "patient", "agent_shape", "patient_shape",
-        "central_shape", "lateral_position", "movement", "outcome",
-        "ground_truth", "change", "test_sentence", "correct_key"
-      ]
-
-A/B → concrete value mappings
------------------------------
-MAPPINGS: Field-wise mapping from abstract A/B codes to concrete values
-    'central_shape'   : {'A':'shape1', 'B':'shape2'}
-    'lateral_position': {'A':'left',   'B':'right'}
-    'movement'        : {'A':'left',   'B':'right'}
-    'correct_key'     : {'A':'right',  'B':'left'}
-"""
+N_SUBJ = 30
 
 def shuffled_copies(lst, n):
     """Return n unique shuffled versions of lst (up to all possible permutations)."""
@@ -182,11 +134,15 @@ def check_spacing(lst, max_spacing):
     repeat_indices = [i for i, (a, b) in enumerate(pairwise(lst), 1) if a == b]
     return all(j - i <= max_spacing for i, j in pairwise(repeat_indices))
 
-def randomize(lst, max_consecutive=1e10, max_spacing=1e10, max_attempts=100000):
+def randomize(lst1, lst2, max_consecutive=1e10, max_spacing=1e10, max_attempts=100000):
     """Return a random permutation of lst with constraints on repetitions and spacing."""
-    cb = lst[:]
     for _ in range(max_attempts):
-        random.shuffle(cb)
+        a = lst1[:]
+        b = lst2[:]
+        random.shuffle(a)
+        random.shuffle(b)
+        pairs = zip(a, b)        
+        cb = [x for pair in pairs for x in pair]
         if check_repetitions(cb, max_consecutive) and check_spacing(cb, max_spacing):
             return cb
     raise RuntimeError("randomize() could not satisfy constraints in max_attempts")
@@ -197,7 +153,10 @@ def cb_localizer(subject_id, n_trials, n_blocks, start_block=1):
     rows = []
 
     for b in range(start_block, n_blocks + start_block):
-        meanings = randomize(list(STIMS) * n_repeats, max_consecutive=2, max_spacing=30)
+        stims = list(STIMS) * n_repeats
+        mid = len(stims) // 2
+        words, images = stims[:mid], stims[mid:]
+        meanings = randomize(words, images, max_consecutive=2, max_spacing=30)
         trial_type = ['image' if i % 2 else 'word' for i in range(n_trials)]
         ground_truth = [1 if meanings[i] == meanings[i-1] else 0 for i in range(n_trials)]
         ground_truth[0] = 0
@@ -307,7 +266,8 @@ def cb_main(subject_id, start_block=1, double=True):
 
 if __name__ == '__main__':
     cb = []
-    for subject_id in range(1, 31):
+    for subject_id in range(1, N_SUBJ + 1):
+        print(f"Generating counterbalancing for subject {subject_id}...")
         cb.extend(cb_localizer(subject_id, n_trials=64, n_blocks=1, start_block=0))
         cb.extend(cb_localizer(subject_id, n_trials=480, n_blocks=2, start_block=1))
         cb.extend(cb_training(subject_id))
