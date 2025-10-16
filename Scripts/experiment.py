@@ -1,10 +1,9 @@
 import pandas as pd, argparse
 from dataclasses import dataclass
-from typing import Optional
 from expyriment import control, design, stimuli, io
 from expyriment.misc.constants import C_BLACK, C_WHITE, C_GREY, K_f, K_j, K_SPACE
 from constants import *
-from meg import HardwareManager, TRIGGERS
+from meg import HardwareManager
 
 @dataclass
 class ExperimentConfig:
@@ -329,6 +328,7 @@ if __name__ == '__main__':
 
     """ STIMULI """
     w, h = exp.screen.size
+    instructions = {name: preload(picture(f"instr_{num}", 0.8)) for name, num in INSTRUCTIONS.items()}
     pulse_position = (w//2 - 50, -h//2 + 50)
     pulse = preload(stimuli.Rectangle(size=(50, 50), position=pulse_position))
     images = {name: picture(name, SIZES[name]) for name in STIMS + SHAPES_TRAINING}
@@ -336,16 +336,6 @@ if __name__ == '__main__':
     fixation = preload(stimuli.Circle(radius=2.5 * SCALE_FACTOR, position=ORIGIN, colour=C_GREY))
     feedback = {label: preload(stimuli.Rectangle(size=(200, 100), position=ORIGIN, colour=colour))
                 for label, colour in (('timeout', LIGHTGRAY), ('correct', GREEN), ('incorrect', RED))}
-    
-    # Load instruction screens with readable names
-    instruction_screens = {
-        Instructions.LOCALIZER: preload(picture("instr_1", 0.8)),
-        Instructions.TRAINING: preload(picture("instr_2", 0.8)),
-        Instructions.TRAINING_ASSIGNMENT: preload(picture("instr_3", 0.8)),
-        Instructions.TRAINING_NO_ANIMATION: preload(picture("instr_4", 0.8)),
-        Instructions.TRAINING_ANIMATION: preload(picture("instr_5", 0.8)),
-        Instructions.MAIN_EXPERIMENT: preload(picture("instr_6", 0.8)),
-    }
     
     pause_message = preload(
         stimuli.TextScreen("Pause", "Prenez un moment pour vous reposer",
@@ -362,25 +352,25 @@ if __name__ == '__main__':
             hardware.calibrate_eyetracker(exp.keyboard)
 
         if config.localizer:
-            present(instruction_screens[Instructions.LOCALIZER], keys=K_SPACE)
+            present(instructions["localizer"], keys=K_SPACE)
             for block in localizer_trials:
                 for params in block:
                     run_localizer_trial(**params)
             take_break(pause_message)
 
         if config.training:
-            present(instruction_screens[Instructions.TRAINING], keys=K_SPACE)
-            present(instruction_screens[Instructions.TRAINING_ASSIGNMENT], keys=K_SPACE)
+            present(instructions["training_intro"], keys=K_SPACE)
+            present(instructions["training_assignment"], keys=K_SPACE)
             for block_number, block in enumerate(training_trials):
                 for params in block:
                     run_main_trial(**params)
                 if block_number == 0:
-                    present(instruction_screens[Instructions.TRAINING_NO_ANIMATION], keys=K_SPACE)
+                    present(instructions["training_no_animation"], keys=K_SPACE)
                 elif block_number == 1:
-                    present(instruction_screens[Instructions.TRAINING_ANIMATION], keys=K_SPACE)
+                    present(instructions["training_animation"], keys=K_SPACE)
             take_break(pause_message)
 
-        present(instruction_screens[Instructions.MAIN_EXPERIMENT], keys=K_SPACE)
+        present(instructions["main_experiment"], keys=K_SPACE)
         for block_number, block in enumerate(main_trials, 1):
             for params in block:
                 run_main_trial(**params)
