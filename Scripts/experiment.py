@@ -4,11 +4,7 @@ from typing import Optional
 from expyriment import control, design, stimuli, io
 from expyriment.misc.constants import C_BLACK, C_WHITE, C_GREY, K_f, K_j, K_SPACE
 from constants import *
-from meg import HardwareManager
-import logging
-
-logging.basicConfig(level=logging.INFO, format="%(message)s", force=True)
-logger = logging.getLogger()
+from meg import HardwareManager, TRIGGERS
 
 @dataclass
 class ExperimentConfig:
@@ -16,7 +12,7 @@ class ExperimentConfig:
     subject_id: int
     meg: bool = False
     eyetracker: bool = False
-    localizer: bool = False
+    localizer: bool = True
     training: bool = False
     fullscreen: bool = False
     
@@ -35,7 +31,6 @@ class ExperimentConfig:
     def setup_directories(self):
         """Configure data directories based on fullscreen mode."""
         if self.fullscreen:
-            logger.disabled = True
             base_dir = f"../Data/Pilot/Behavior/sub-{self.subject_id:02d}"
             io.defaults.datafile_directory = base_dir
             io.defaults.eventfile_directory = base_dir
@@ -62,8 +57,13 @@ def word(name):
 def diff(t0):
     return exp.clock.time - t0
 
-def present(*stims, duration=None, keys=None, event=None):
-    t0 = exp.clock.time # Start timer
+def present(*stims, duration=None, keys=None, buttons=None, event=None):
+    """
+    Present stimuli and optionally wait for response.
+    Returns:
+        (response, rt): Response and reaction time, or (None, None)
+    """
+    t0 = exp.clock.time
     
     # Draw stimuli
     exp.screen.clear() 
@@ -74,38 +74,44 @@ def present(*stims, duration=None, keys=None, event=None):
     # Send trigger if applicable
     if hardware.meg_handler and hardware.port and event:
         hardware.port.set_data(TRIGGERS[event])
-    if hardware.eyetracker and event and event != "baseline":
+    if hardware.eyetracker and event:
         hardware.eyetracker.send_message(event)
 
-    if not duration and not keys: 
+    if not duration and not keys and not buttons: 
         return None, None
 
     # Keep on-screen for target duration
     remaining = None if duration is None else max(0, duration - diff(t0))
 
-    if keys:
-        kb = hardware.meg_handler if hardware.meg_handler else exp.keyboard
-        key, rt = kb.wait(keys, remaining)
-        return KEYMAP.get(key), rt
-    
-    if remaining is not None:
+    # Handle responses
+    if keys is not None or buttons is not None:
+        # Use MEG handler if buttons are specified and MEG is available
+        if buttons and hardware.meg_handler:
+            key, rt = hardware.meg_handler.wait(buttons, remaining)
+            return KEYMAP.get(key), rt
+        # Use keyboard if keys are specified
+        elif keys is not None:
+            # Allow single key or list of keys
+            key_list = keys if isinstance(keys, list) else [keys]
+            key, rt = exp.keyboard.wait(key_list, remaining)
+            return KEYMAP.get(key), rt
+        # Fallback: wait for duration
+        elif remaining is not None:
+            exp.clock.wait(remaining)
+    elif remaining is not None:
         exp.clock.wait(remaining)
     
     return None, None
 
-def show(message):
-    """Display a message and wait for spacebar press."""
-    message.present()
-    exp.keyboard.wait(K_SPACE)
-
-def draw(*stims, duration=None, keys=None, event=None):
+def draw(*stims, duration=None, keys=None, buttons=None, event=None):
+    """ Draw stimuli with a pulsing probe and collect responses."""
     t0 = exp.clock.time
     present(*stims, pulse, duration=50, event=event)
-    key, rt = present(*stims, duration=duration-50, keys=keys, event='baseline')
-    logger.info(f"{event} duration: {exp.clock.time - t0}")
+    key, rt = present(*stims, duration=duration-50, keys=keys, buttons=buttons, event='baseline')
     return key, rt
 
 def draw_seq(steps):
+    """Execute a sequence of drawing steps."""
     for stims, dur, evt in steps:
         if not stims:
             draw(duration=dur, event=evt)
@@ -129,15 +135,16 @@ def run_localizer_trial(**params):
         
         stim = images[shape1] if shape1 else words[label1]
 
-        key, rt = draw(stim, duration=800, keys=hardware.response_keys, event=trial_type)
+        key, rt = draw(stim, duration=800, keys=response_keys, buttons=response_buttons, event=trial_type)
         correct = key == correct_key
-        
+
         if not correct:
             present(feedback['incorrect'], stim, duration=100)
             present(stim)
 
         params.update(timestamp=t0, response=key, rt=rt, correct=correct)
         exp.data.add([params.get(k) for k in var_names])
+
         exp.clock.wait(1000 - diff(t0))
         
     except (KeyError, ValueError) as e:
@@ -245,7 +252,7 @@ def run_main_trial(**params):
             draw(words[w], duration=WORD_T, event=f'test_{i}')
 
         # RESPONSE (max 1800 ms)
-        key, rt = draw(duration=RESPONSE_T, keys=hardware.response_keys, event='response')
+        key, rt = draw(duration=RESPONSE_T, keys=response_keys, buttons=response_buttons, event='response')
         correct = key == correct_key
 
         shape1.reposition(ORIGIN)
@@ -269,9 +276,10 @@ def run_main_trial(**params):
         raise  # Re-raise unexpected errors
 
 def take_break(message):
+    """Display break message and wait for spacebar."""
     if hardware.eyetracker: 
         hardware.eyetracker.stop_recording()
-    show(message)
+    present(message, keys=K_SPACE)
     if hardware.eyetracker: 
         hardware.eyetracker.start_new_block()
         hardware.eyetracker.start_recording()
@@ -297,6 +305,10 @@ if __name__ == '__main__':
         meg=config.meg,
         eyetracker=config.eyetracker
     ).setup()
+    
+    # Setup response keys/buttons based on hardware
+    response_keys = [K_f, K_j]  # Always available
+    response_buttons = hardware.response_keys if hardware.meg_handler else None
 
     """ DESIGN """
     cb = pd.read_csv(COUNTERBALANCE_CSV)
@@ -324,7 +336,17 @@ if __name__ == '__main__':
     fixation = preload(stimuli.Circle(radius=2.5 * SCALE_FACTOR, position=ORIGIN, colour=C_GREY))
     feedback = {label: preload(stimuli.Rectangle(size=(200, 100), position=ORIGIN, colour=colour))
                 for label, colour in (('timeout', LIGHTGRAY), ('correct', GREEN), ('incorrect', RED))}
-    instructions = [preload(picture(f"instr_{i}", 0.8)) for i in range(1, 7)]
+    
+    # Load instruction screens with readable names
+    instruction_screens = {
+        Instructions.LOCALIZER: preload(picture("instr_1", 0.8)),
+        Instructions.TRAINING: preload(picture("instr_2", 0.8)),
+        Instructions.TRAINING_ASSIGNMENT: preload(picture("instr_3", 0.8)),
+        Instructions.TRAINING_NO_ANIMATION: preload(picture("instr_4", 0.8)),
+        Instructions.TRAINING_ANIMATION: preload(picture("instr_5", 0.8)),
+        Instructions.MAIN_EXPERIMENT: preload(picture("instr_6", 0.8)),
+    }
+    
     pause_message = preload(
         stimuli.TextScreen("Pause", "Prenez un moment pour vous reposer",
                            position = (OFFSET_X, -300), heading_size = 50, text_size = 30))
@@ -340,31 +362,31 @@ if __name__ == '__main__':
             hardware.calibrate_eyetracker(exp.keyboard)
 
         if config.localizer:
-            show(instructions[0])
+            present(instruction_screens[Instructions.LOCALIZER], keys=K_SPACE)
             for block in localizer_trials:
                 for params in block:
                     run_localizer_trial(**params)
             take_break(pause_message)
 
         if config.training:
-            show(instructions[1])
-            show(instructions[2])
+            present(instruction_screens[Instructions.TRAINING], keys=K_SPACE)
+            present(instruction_screens[Instructions.TRAINING_ASSIGNMENT], keys=K_SPACE)
             for block_number, block in enumerate(training_trials):
                 for params in block:
                     run_main_trial(**params)
                 if block_number == 0:
-                    show(instructions[3])
+                    present(instruction_screens[Instructions.TRAINING_NO_ANIMATION], keys=K_SPACE)
                 elif block_number == 1:
-                    show(instructions[4])
+                    present(instruction_screens[Instructions.TRAINING_ANIMATION], keys=K_SPACE)
             take_break(pause_message)
 
-        show(instructions[5])
+        present(instruction_screens[Instructions.MAIN_EXPERIMENT], keys=K_SPACE)
         for block_number, block in enumerate(main_trials, 1):
             for params in block:
                 run_main_trial(**params)
             if block_number != N_BLOCKS:
                 take_break(pause_message)
-        show(end_message)
+        present(end_message, keys=K_SPACE)
         
     finally:
         hardware.cleanup()
