@@ -3,36 +3,11 @@ from dataclasses import dataclass
 from expyriment import control, design, stimuli, io
 from expyriment.misc.constants import C_BLACK, C_WHITE, C_GREY, K_f, K_j, K_SPACE
 from constants import *
-from meg import HardwareManager
+from hardware import HardwareManager
 
-@dataclass
-class ExperimentConfig:
-    """Configuration for experiment hardware and behavior."""
-    subject_id: int
-    meg: bool = False
-    eyetracker: bool = False
-    localizer: bool = True
-    training: bool = False
-    fullscreen: bool = False
-    
-    @classmethod
-    def from_args(cls, args, flags):
-        """Create config from parsed arguments and flags."""
-        return cls(
-            subject_id=args.subject_id,
-            meg='meg' in flags,
-            eyetracker='eyetracker' in flags,
-            localizer='localizer' in flags,
-            training='training' in flags,
-            fullscreen='fullscreen' in flags
-        )
-    
-    def setup_directories(self):
-        """Configure data directories based on fullscreen mode."""
-        if self.fullscreen:
-            base_dir = f"../Data/Pilot/Behavior/sub-{self.subject_id:02d}"
-            io.defaults.datafile_directory = base_dir
-            io.defaults.eventfile_directory = base_dir
+import logging
+logging.basicConfig(level=logging.INFO, format="%(message)s", force=True)
+logger = logging.getLogger()
 
 """ Helper functions """
 def preload(stimulus):
@@ -107,6 +82,7 @@ def draw(*stims, duration=None, keys=None, buttons=None, event=None):
     t0 = exp.clock.time
     present(*stims, pulse, duration=50, event=event)
     key, rt = present(*stims, duration=duration-50, keys=keys, buttons=buttons, event='baseline')
+    logger.info(f"{event} duration: {exp.clock.time - t0}")
     return key, rt
 
 def draw_seq(steps):
@@ -285,24 +261,33 @@ def take_break(message):
 
 if __name__ == '__main__':
     """ GLOBAL SETTINGS """
+    # Parse arguments
     parser = argparse.ArgumentParser()
     parser.add_argument('--subject_id', type=int, default=2)
     args, extras = parser.parse_known_args()
     
-    # Create configuration
-    config = ExperimentConfig.from_args(args, set(extras))
+    subject_id = args.subject_id
+    flags = set(extras)
+    meg = 'meg' in flags
+    eyetracker = 'eyetracker' in flags
+    localizer = 'localizer' in flags
+    training = 'training' in flags
+    fullscreen = 'fullscreen' in flags
     
-    # Setup environment
-    if not config.fullscreen:
-        control.set_develop_mode(skip_wait_methods=False)
+    # Setup directories
+    if fullscreen:
+        logger.disabled = True
+        base_dir = f"../Data/Pilot/Behavior/sub-{subject_id:02d}"
+        io.defaults.datafile_directory = base_dir
+        io.defaults.eventfile_directory = base_dir
     else:
-        config.setup_directories()
+        control.set_develop_mode(skip_wait_methods=True)
 
     """ HARDWARE SETUP """
     hardware = HardwareManager(
-        subject_id=config.subject_id,
-        meg=config.meg,
-        eyetracker=config.eyetracker
+        subject_id=subject_id,
+        meg=meg,
+        eyetracker=eyetracker
     ).setup()
     
     # Setup response keys/buttons based on hardware
@@ -312,7 +297,7 @@ if __name__ == '__main__':
     """ DESIGN """
     cb = pd.read_csv(COUNTERBALANCE_CSV)
     cb = cb.where(cb.notna(), None)
-    mask = cb['subject_id'] == config.subject_id
+    mask = cb['subject_id'] == subject_id
     df = cb.loc[mask]
 
     localizer_trials = parse_blocks(df, df["trial_type"].isin(["word", "image"]))
@@ -345,39 +330,37 @@ if __name__ == '__main__':
                            position = (OFFSET_X, -300), heading_size = 50, text_size = 30))
 
     """ RUN EXPERIMENT """
-    try:
-        control.start(subject_id=config.subject_id)
+    control.start(subject_id=subject_id)
 
-        if hardware.eyetracker:
-            hardware.calibrate_eyetracker(exp.keyboard)
+    if hardware.eyetracker:
+        hardware.calibrate_eyetracker(exp.keyboard)
 
-        if config.localizer:
-            present(instructions["localizer"], keys=K_SPACE)
-            for block in localizer_trials:
-                for params in block:
-                    run_localizer_trial(**params)
-            take_break(pause_message)
+    if localizer:
+        present(instructions["localizer"], keys=K_SPACE)
+        for block in localizer_trials:
+            for params in block:
+                run_localizer_trial(**params)
+        take_break(pause_message)
 
-        if config.training:
-            present(instructions["training_intro"], keys=K_SPACE)
-            present(instructions["training_assignment"], keys=K_SPACE)
-            for block_number, block in enumerate(training_trials):
-                for params in block:
-                    run_main_trial(**params)
-                if block_number == 0:
-                    present(instructions["training_no_animation"], keys=K_SPACE)
-                elif block_number == 1:
-                    present(instructions["training_animation"], keys=K_SPACE)
-            take_break(pause_message)
-
-        present(instructions["main_experiment"], keys=K_SPACE)
-        for block_number, block in enumerate(main_trials, 1):
+    if training:
+        present(instructions["training_intro"], keys=K_SPACE)
+        present(instructions["training_assignment"], keys=K_SPACE)
+        for block_number, block in enumerate(training_trials):
             for params in block:
                 run_main_trial(**params)
-            if block_number != N_BLOCKS:
-                take_break(pause_message)
-        present(end_message, keys=K_SPACE)
+            if block_number == 0:
+                present(instructions["training_no_animation"], keys=K_SPACE)
+            elif block_number == 1:
+                present(instructions["training_animation"], keys=K_SPACE)
+        take_break(pause_message)
+
+    present(instructions["main_experiment"], keys=K_SPACE)
+    for block_number, block in enumerate(main_trials, 1):
+        for params in block:
+            run_main_trial(**params)
+        if block_number != N_BLOCKS:
+            take_break(pause_message)
+    present(end_message, keys=K_SPACE)
         
-    finally:
-        hardware.cleanup()
-        control.end()
+    hardware.cleanup()
+    control.end()

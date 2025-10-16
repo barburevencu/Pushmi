@@ -1,0 +1,57 @@
+#Expyriment 1.0.0 (Python 3.11.6), .xpe-file, coding: UTF-8
+#date: Thu Oct 16 2025 16:09:44
+#sha1: a97b43
+#modules: constants.py (f3bf11), meg.py (3a167e), eyelink.py (74605b)
+#display: size=(800, 600), window_mode=True, opengl=2
+#os: uname_result(system='Darwin', node='Barbus-MacBook-Air.local', release='24.6.0', version='Darwin Kernel Version 24.6.0: Mon Jul 14 11:30:51 PDT 2025; root:xnu-11417.140.69~1/RELEASE_ARM64_T8112', machine='arm64')
+Time,Type,Event,Value,Detail,Detail2
+588,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/instr_1.png
+617,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/instr_2.png
+651,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/instr_3.png
+679,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/instr_4.png
+708,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/instr_5.png
+736,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/instr_6.png
+763,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/louve.png
+770,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/poule.png
+774,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/tasse.png
+778,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/malle.png
+782,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/carre.png
+785,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/cercle.png
+789,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/etoile.png
+792,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/croix.png
+796,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/pentagone.png
+799,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/losange.png
+1269,design,log,
+#design: #exp: Pushmi
+#design: #dvn: subject_id,trial_type,block_number,trial_number,assignment_order,shape_pair,shape1,label1,shape2,label2,agent,patient,agent_shape,patient_shape,central_shape,lateral_position,movement,outcome,ground_truth,change,test_sentence,correct_key,timestamp,response,rt,correct
+#design: block_cnt,block_id,trial_cnt,trial_id
+1269,design,logged,
+1269,Experiment,started
+1269,Stimulus,presented,5
+1274,Stimulus,presented,41
+2367,Keyboard,received,32,wait
+2367,Stimulus,presented,6
+2374,Stimulus,presented,41
+2424,Stimulus,presented,41
+2867,Stimulus,presented,27
+2867,Stimulus,presented,6
+2874,Stimulus,presented,41
+2917,Stimulus,presented,27
+2923,Stimulus,presented,41
+3790,Experiment,ended
+3920,stderr,received,'Traceback (most recent call last):'
+3920,stderr,received,'  File "/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Scripts/experiment.py", line 377, in <module>'
+3920,stderr,received,'    run_main_trial(**params)'
+3920,stderr,received,'  File "/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Scripts/experiment.py", line 218, in run_main_trial'
+3920,stderr,received,'    draw_seq(assignment_seq(order, shape1, label1, shape2, label2))'
+3920,stderr,received,'  File "/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Scripts/experiment.py", line 121, in draw_seq'
+3920,stderr,received,'    draw(stims, duration=dur, event=evt)'
+3920,stderr,received,'  File "/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Scripts/experiment.py", line 110, in draw'
+3920,stderr,received,"    key, rt = present(*stims, duration=duration-50, keys=keys, buttons=buttons, event='baseline')"
+3920,stderr,received,'              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'
+3920,stderr,received,'  File "/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Scripts/experiment.py", line 102, in present'
+3920,stderr,received,'    exp.clock.wait(remaining)'
+3920,stderr,received,'  File "/opt/homebrew/anaconda3/lib/python3.11/site-packages/expyriment/misc/_clock.py", line 157, in wait'
+3920,stderr,received,'    while (get_time() < start + waiting_time / 1000):'
+3920,stderr,received,'           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'
+3920,stderr,received,'KeyboardInterrupt'
