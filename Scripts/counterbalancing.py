@@ -18,78 +18,61 @@ def mirror(obj, elem1='A', elem2='B'):
     """Swap elem1<->elem2 anywhere inside arbitrarily nested dict/list/tuple."""
     if isinstance(obj, dict):
         return {k: mirror(v, elem1, elem2) for k, v in obj.items()}
-    if isinstance(obj, list):
-        return [mirror(x, elem1, elem2) for x in obj]
-    if isinstance(obj, tuple):
-        return tuple(mirror(x, elem1, elem2) for x in obj)
+    if isinstance(obj, (list, tuple)):
+        return type(obj)(mirror(x, elem1, elem2) for x in obj)
     return elem2 if obj == elem1 else elem1 if obj == elem2 else obj
 
 def balance_vars(n_vars, n_groups, mirrored):
-    """Generate balanced combinations of n_vars A/B factors for counterbalancing across n_groups. 
-    Doubles the output with n_vars B/A factors if mirrored."""
+    """Generate balanced A/B factor combinations for counterbalancing."""
     full_factor = [list(prod) for prod in product(['A', 'B'], repeat=n_vars)]
     shuffled = shuffled_copies(full_factor, n_groups)
-    
     if not mirrored:
         return shuffled
-    
-    shuffled_mirror = mirror(shuffled, "A", "B")
-    combined = shuffled + shuffled_mirror
-    
+    combined = shuffled + mirror(shuffled, "A", "B")
     for _ in range(10000):
         random.shuffle(combined)
         if all(combined[i] != mirror(combined[i + 1]) for i in range(0, len(combined), 2)):
             return combined
-        
+
 def is_balanced(trials, cols=('assignment_order', 'agent', 'patient', 'correct_key', 'central_shape')):
-    """Return True if each level of each column has equal 'pousse' and 'tire' outcomes."""
+    """Return True if each column level has equal 'pousse' and 'tire' outcomes."""
     for col in cols:
-        sorted_trials = sorted(trials, key=lambda t: t[col])
-        for _, group in groupby(sorted_trials, key=lambda t: t[col]):
-            pousse = tire = 0
-            for t in group:
-                pousse += (t['outcome'] == 'pousse')
-                tire += (t['outcome'] == 'tire')
+        for _, group in groupby(sorted(trials, key=lambda t: t[col]), key=lambda t: t[col]):
+            pousse, tire = 0, 0
+            for trial in group:
+                pousse += (trial['outcome'] == 'pousse')
+                tire += (trial['outcome'] == 'tire')
             if pousse != tire:
                 return False
     return True
 
 def map_AB(trials, mappings):
     """Map A/B fields to concrete values in place."""
-    for t in trials:
+    for trial in trials:
         for col, mapping in mappings.items():
-            if col in t:
-                t[col] = mapping.get(t[col], t[col])
+            if col in trial:
+                trial[col] = mapping.get(trial[col], trial[col])
 
 def add_numbers(trials, start_from=1):
-    """Assign block_number and trial_number."""
+    """Assign block_number and trial_number to trials."""
     for i, trial in enumerate(trials):
         trial["block_number"] = (i // BLOCK_SIZE) + start_from
         trial["trial_number"] = (i % BLOCK_SIZE) + 1
 
 def sort_key(s):
     """Return a consistent key for a shape pair 'A-B' or 'B-A'."""
-    a, b = s.split("-")
-    return "-".join(sorted((a, b)))
+    return "-".join(sorted(s.split("-")))
 
 def sort_trials(trials):
-    """Sort trials by shape_pair, agent_shape, agent, patient, shape1-shape2, assignment_order."""
-    trials.sort(key=lambda d: (d['shape_pair'], d["agent_shape"], d["agent"], d["patient"], 
+    """Sort trials by multiple keys."""
+    trials.sort(key=lambda d: (d['shape_pair'], d["agent_shape"], d["agent"], d["patient"],
                                 d['shape1'] + "-" + d['shape2'], d["assignment_order"]))
-
-def starts_with_vowel(word):
-    """Return True if a word starts with a vowel."""
-    return word[0].lower() in "aeiouhyéè"
 
 def article(noun):
     """Return the correct French definite article for a noun."""
-    if starts_with_vowel(noun):
+    if noun[0].lower() in "aeiouhyéè":
         return f"L'{noun}"
-    if noun in MASC_NAMES:
-        return f"Le {noun}"
-    if noun in FEM_NAMES:
-        return f"La {noun}"
-    return f"Le {noun}"
+    return f"{'Le' if noun in MASC_NAMES else 'La'} {noun}"
 
 def outcome(trial):
     """Return the outcome verb ('pousse' or 'tire') for a trial."""
@@ -99,12 +82,11 @@ def outcome(trial):
 
 def event_description(trial):
     """Return the sentence describing the ground-truth event."""
-    agent, patient, verb = (trial[k] for k in ('agent', 'patient', 'outcome'))
-    return f"{article(agent)} {verb} {article(patient).lower()}"
+    return f"{article(trial['agent'])} {trial['outcome']} {article(trial['patient']).lower()}"
 
 def test_sentence(trial):
-    """Return the test sentence, possibly with a change from the ground-truth event."""
-    agent, patient, verb, change = (trial[k] for k in ('agent', 'patient', 'outcome', 'change'))
+    """Return the test sentence, possibly with a change from ground-truth."""
+    agent, patient, verb, change = trial['agent'], trial['patient'], trial['outcome'], trial.get('change')
     if change:
         swap = SWAP_MAP["verb"] if change == "verb" else SWAP_MAP["nouns"]
         if change == "agent":
@@ -125,137 +107,115 @@ def check_spacing(lst, max_spacing):
     return all(j - i <= max_spacing for i, j in pairwise(repeat_indices))
 
 def randomize(lst1, lst2, max_consecutive=1e10, max_spacing=1e10):
-    """Return a random permutation with constraints on repetitions and spacing."""
+    """Return random permutation with repetition and spacing constraints."""
     for _ in range(100000):
         a, b = lst1[:], lst2[:]
         random.shuffle(a)
         random.shuffle(b)
-        cb = [x for pair in zip(a, b) for x in pair]
-        if check_repetitions(cb, max_consecutive) and check_spacing(cb, max_spacing):
-            return cb
+        combined = [x for pair in zip(a, b) for x in pair]
+        if check_repetitions(combined, max_consecutive) and check_spacing(combined, max_spacing):
+            return combined
 
 def cb_localizer(subject_id, n_trials, n_blocks, start_block=1):
-    """Generate a counterbalanced list of localizer trials."""
-    n_repeats = n_trials // len(STIMS)
+    """Generate counterbalanced localizer trials."""
     rows = []
-
-    for b in range(start_block, n_blocks + start_block):
-        stims = list(STIMS) * n_repeats
+    for block_num in range(start_block, n_blocks + start_block):
+        stims = list(STIMS) * (n_trials // len(STIMS))
         mid = len(stims) // 2
-        words, images = stims[:mid], stims[mid:]
-        meanings = randomize(words, images, max_consecutive=2, max_spacing=30)
+        meanings = randomize(stims[:mid], stims[mid:], max_consecutive=2, max_spacing=30)
         trial_type = ['image' if i % 2 else 'word' for i in range(n_trials)]
         ground_truth = [1 if meanings[i] == meanings[i-1] else 0 for i in range(n_trials)]
         ground_truth[0] = 0
-        correct_key = ['right' if gt else None for gt in ground_truth]
-
-        for t in range(n_trials):
+        
+        for trial_idx in range(n_trials):
             rows.append({
-                "trial_type": trial_type[t],
+                "trial_type": trial_type[trial_idx],
                 "subject_id": subject_id,
-                "block_number": b,
-                "trial_number": t + 1,
-                "shape1": meanings[t] if trial_type[t] == "image" else None,
-                "label1": meanings[t] if trial_type[t] == "word" else None,
-                "ground_truth": ground_truth[t],
-                "correct_key": correct_key[t],
+                "block_number": block_num,
+                "trial_number": trial_idx + 1,
+                "shape1": meanings[trial_idx] if trial_type[trial_idx] == "image" else None,
+                "label1": meanings[trial_idx] if trial_type[trial_idx] == "word" else None,
+                "ground_truth": ground_truth[trial_idx],
+                "correct_key": 'right' if ground_truth[trial_idx] else None,
             })
-
     return rows
 
 def cb_base(phase, subject_id, shapes, animals, tools, double=True):
+    """Generate base trial structure for a phase."""
     shape_pairs = [p for c in combinations(shapes, 2) for p in permutations(c, 2)]
-    agent_shapes = ["shape1", "shape2"]
-    assignment_order = ["symbol_first", "referent_first"]
     trials = [
-        {
-            "subject_id": subject_id,
-            "shape_pair": sort_key(shape1 + "-" + shape2),
-            "trial_type": phase,
-            "shape1": shape1, 
-            "shape2": shape2,
-            "agent": animal,
-            "patient": tool,
-            "label1": animal if agent == 'shape1' else tool,
-            "label2": tool if agent == 'shape1' else animal,
-            "agent_shape": agent,
-            "patient_shape": 'shape2' if agent == 'shape1' else 'shape1',
-            "assignment_order": order
-        }
+        {"subject_id": subject_id, "shape_pair": sort_key(shape1 + "-" + shape2), "trial_type": phase,
+         "shape1": shape1, "shape2": shape2, "agent": animal, "patient": tool,
+         "label1": animal if agent == 'shape1' else tool, "label2": tool if agent == 'shape1' else animal,
+         "agent_shape": agent, "patient_shape": 'shape2' if agent == 'shape1' else 'shape1', "assignment_order": order}
         for (shape1, shape2), animal, tool, agent, order in 
-        product(shape_pairs, animals, tools, agent_shapes, assignment_order)
+        product(shape_pairs, animals, tools, ["shape1", "shape2"], ["symbol_first", "referent_first"])
     ]
-            
+    
     sort_trials(trials)
-
     extra_keys = list(MAPPINGS.keys())
     n_groups, mirrored = (2, False) if phase == "training" else (6, True)
-    extra_values = [trial for block in balance_vars(n_vars=len(extra_keys), n_groups=n_groups, mirrored=mirrored) for trial in block]
-
+    extra_values = [trial for block in balance_vars(len(extra_keys), n_groups, mirrored) for trial in block]
+    
     for trial, extra in zip(trials, extra_values):
         trial.update(dict(zip(extra_keys, extra)))
-
-    if double: 
-        trials += [mirror(t) for t in trials]
-
-    map_AB(trials, MAPPINGS)
-    num_false = len(trials) // 2
-    split = {"agent": 1/4, "patient": 1/4, "verb": 1/2}
     
-    change_order = [k for k, p in split.items() for _ in range(int(num_false * p))]
+    if double:
+        trials += [mirror(trial) for trial in trials]
+    
+    map_AB(trials, MAPPINGS)
+    change_order = [key for key, prop in {"agent": 1/4, "patient": 1/4, "verb": 1/2}.items() 
+                    for _ in range(int(len(trials) // 4 * prop))]
     random.shuffle(change_order)
-    change_order = iter(change_order)
-
-    return trials, change_order
+    return trials, iter(change_order)
 
 def cb_training(subject_id, start_block=0):
     """Generate counterbalanced training trials in 3 phases."""
     trials, change_order = cb_base("training", subject_id, SHAPES_TRAINING, 
                                     ANIMALS_TRAINING, TOOLS_TRAINING, double=False)
-
     random.shuffle(trials)
     block_1_end = TRAINING_BLOCK_1_SIZE
     block_2_end = block_1_end + TRAINING_BLOCK_2_SIZE
-
-    for ti, t in enumerate(trials, 1):
-        if ti <= block_1_end:
-            bi, trial_type, trial_num = 0, "training_no_assignment", ti
-        elif ti <= block_2_end:
-            bi, trial_type, trial_num = 1, "training_assignment", ti - block_1_end
+    
+    for trial_idx, trial in enumerate(trials, 1):
+        if trial_idx <= block_1_end:
+            block_info = (0, "training_no_assignment", trial_idx)
+        elif trial_idx <= block_2_end:
+            block_info = (1, "training_assignment", trial_idx - block_1_end)
         else:
-            bi, trial_type, trial_num = 2, "training_no_animation", ti - block_2_end
+            block_info = (2, "training_no_animation", trial_idx - block_2_end)
         
-        t["block_number"] = bi
-        t["trial_type"] = trial_type
-        t["trial_number"] = trial_num
+        block_idx, trial_type, trial_num = block_info
+        trial.update({"block_number": block_idx, "trial_type": trial_type, "trial_number": trial_num})
         
-        if bi == 0:
-            t["label1"] = t["shape1"]
-            t["label2"] = t["shape2"]
-            t["agent"] = t["shape1"] if t["agent_shape"] == "shape1" else t["shape2"]
-            t["patient"] = t["shape2"] if t["agent_shape"] == "shape1" else t["shape1"]
+        if block_idx == 0:
+            trial.update({
+                "label1": trial["shape1"], "label2": trial["shape2"],
+                "agent": trial["shape1"] if trial["agent_shape"] == "shape1" else trial["shape2"],
+                "patient": trial["shape2"] if trial["agent_shape"] == "shape1" else trial["shape1"]
+            })
         
-        t["outcome"] = outcome(t)
-        t["change"] = next(change_order, None) if t.get("correct_key") == "left" else None
-        t["ground_truth"] = event_description(t)
-        t["test_sentence"] = test_sentence(t)
-
+        trial["outcome"] = outcome(trial)
+        trial["change"] = next(change_order, None) if trial.get("correct_key") == "left" else None
+        trial["ground_truth"] = event_description(trial)
+        trial["test_sentence"] = test_sentence(trial)
+    
     return trials
 
 def cb_main(subject_id, start_block=1, double=True):
     """Generate counterbalanced main experiment trials."""
     for _ in range(1000):
         trials, change_order = cb_base("test", subject_id, SHAPES, ANIMALS, TOOLS, double=double)
-
-        for t in trials:
-            t["outcome"] = outcome(t)
-            t["change"] = next(change_order, None) if t.get("correct_key") == "left" else None
-            t["ground_truth"] = event_description(t)
-            t["test_sentence"] = test_sentence(t)
-
-        if is_balanced(trials, cols=['assignment_order', 'agent', 'patient', 'correct_key', 'central_shape']):
+        
+        for trial in trials:
+            trial["outcome"] = outcome(trial)
+            trial["change"] = next(change_order, None) if trial.get("correct_key") == "left" else None
+            trial["ground_truth"] = event_description(trial)
+            trial["test_sentence"] = test_sentence(trial)
+        
+        if is_balanced(trials):
             break
-
+    
     random.shuffle(trials)
     add_numbers(trials, start_from=start_block)
     return trials
@@ -267,8 +227,8 @@ if __name__ == '__main__':
         cb.extend(cb_localizer(subject_id, n_trials=64, n_blocks=1, start_block=0))
         cb.extend(cb_localizer(subject_id, n_trials=480, n_blocks=2, start_block=1))
         cb.extend(cb_training(subject_id))
-        cb.extend(cb_main(subject_id, double=True))
-
+        cb.extend(cb_main(subject_id))
+    
     with open(COUNTERBALANCE_CSV, "w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=COLNAMES)
         writer.writeheader()

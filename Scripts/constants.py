@@ -69,7 +69,6 @@ TEXT_SIZE = 50
 # =============================================================================
 # STIMULUS SETS
 # =============================================================================
-
 # Main experiment stimuli
 ANIMALS = ('louve', 'poule')                    # Animals (feminine)
 TOOLS = ('tasse', 'malle')                      # Tools (feminine)
@@ -89,7 +88,6 @@ SIZES = {
     k: (IMAGE_WIDTH if k in ['louve', 'malle'] else SHAPE_WIDTH) / 1000 
     for k in STIMS + SHAPES_TRAINING
 }
-
 
 # =============================================================================
 # FRENCH LANGUAGE PROPERTIES
@@ -164,16 +162,13 @@ MAPPINGS = {
 # =============================================================================
 # FILE PATHS
 # =============================================================================
-
 BASE_DIR = Path(__file__).resolve().parent
 STIM_DIR = BASE_DIR.parent / "Stimuli"
 COUNTERBALANCE_CSV = BASE_DIR.parent / "Randomization" / "cb.csv"
 
-
 # =============================================================================
 # MEG HARDWARE CONFIGURATION
 # =============================================================================
-
 # Map raw parallel port status codes to button labels
 # Each port has different buttons with unique status codes
 BUTTONS = {
