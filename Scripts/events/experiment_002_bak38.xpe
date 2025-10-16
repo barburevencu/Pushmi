@@ -1,0 +1,104 @@
+#Expyriment 1.0.0 (Python 3.11.6), .xpe-file, coding: UTF-8
+#date: Thu Oct 16 2025 15:43:18
+#sha1: 870912
+#modules: constants.py (bf38d4), meg.py (23cfe5), eyelink.py (74605b)
+#display: size=(800, 600), window_mode=True, opengl=2
+#os: uname_result(system='Darwin', node='Barbus-MacBook-Air.local', release='24.6.0', version='Darwin Kernel Version 24.6.0: Mon Jul 14 11:30:51 PDT 2025; root:xnu-11417.140.69~1/RELEASE_ARM64_T8112', machine='arm64')
+Time,Type,Event,Value,Detail,Detail2
+548,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/louve.png
+552,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/poule.png
+555,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/tasse.png
+558,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/malle.png
+562,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/carre.png
+565,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/cercle.png
+568,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/etoile.png
+571,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/croix.png
+574,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/pentagone.png
+578,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/losange.png
+601,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/instr_1.png
+626,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/instr_2.png
+657,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/instr_3.png
+693,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/instr_4.png
+718,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/instr_5.png
+744,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/instr_6.png
+2818,design,log,
+#design: #exp: Pushmi
+#design: #dvn: subject_id,trial_type,block_number,trial_number,assignment_order,shape_pair,shape1,label1,shape2,label2,agent,patient,agent_shape,patient_shape,central_shape,lateral_position,movement,outcome,ground_truth,change,test_sentence,correct_key,timestamp,response,rt,correct
+#design: block_cnt,block_id,trial_cnt,trial_id
+2818,design,logged,
+2818,Experiment,started
+2825,Stimulus,presented,39
+3475,Keyboard,received,32,wait
+3476,Stimulus,presented,11
+3476,Stimulus,presented,0
+3491,Stimulus,presented,35
+3526,Stimulus,presented,11
+3541,Stimulus,presented,35
+4275,Keyboard,received,None,wait
+4475,Stimulus,presented,3
+4475,Stimulus,presented,0
+4491,Stimulus,presented,35
+4525,Stimulus,presented,3
+4541,Stimulus,presented,35
+5275,Keyboard,received,None,wait
+5476,Stimulus,presented,14
+5476,Stimulus,presented,0
+5490,Stimulus,presented,35
+5525,Stimulus,presented,14
+5541,Stimulus,presented,35
+6275,Keyboard,received,None,wait
+6475,Stimulus,presented,3
+6475,Stimulus,presented,0
+6491,Stimulus,presented,35
+6525,Stimulus,presented,3
+6541,Stimulus,presented,35
+7275,Keyboard,received,None,wait
+7476,Stimulus,presented,21
+7476,Stimulus,presented,0
+7491,Stimulus,presented,35
+7525,Stimulus,presented,21
+7540,Stimulus,presented,35
+8275,Keyboard,received,None,wait
+8476,Stimulus,presented,1
+8476,Stimulus,presented,0
+8491,Stimulus,presented,35
+8525,Stimulus,presented,1
+8541,Stimulus,presented,35
+9275,Keyboard,received,None,wait
+9276,Stimulus,presented,38
+9276,Stimulus,presented,1
+9291,Stimulus,presented,35
+9375,Stimulus,presented,1
+9391,Stimulus,presented,35
+9475,Stimulus,presented,22
+9475,Stimulus,presented,0
+9491,Stimulus,presented,35
+9525,Stimulus,presented,22
+9541,Stimulus,presented,35
+10275,Keyboard,received,None,wait
+10476,Stimulus,presented,1
+10476,Stimulus,presented,0
+10491,Stimulus,presented,35
+10525,Stimulus,presented,1
+10541,Stimulus,presented,35
+11275,Keyboard,received,None,wait
+11475,Stimulus,presented,13
+11476,Stimulus,presented,0
+11491,Stimulus,presented,35
+11525,Stimulus,presented,13
+11541,Stimulus,presented,35
+12275,Keyboard,received,None,wait
+12337,Experiment,ended
+12338,Data,saved
+12462,stderr,received,'Traceback (most recent call last):'
+12462,stderr,received,'  File "/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Scripts/experiment.py", line 347, in <module>'
+12462,stderr,received,'    run_localizer_trial(**params)'
+12462,stderr,received,'  File "/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Scripts/experiment.py", line 142, in run_localizer_trial'
+12462,stderr,received,'    exp.clock.wait(1000 - diff(t0))'
+12462,stderr,received,'  File "/opt/homebrew/anaconda3/lib/python3.11/site-packages/expyriment/misc/_clock.py", line 157, in wait'
+12462,stderr,received,'    while (get_time() < start + waiting_time / 1000):'
+12462,stderr,received,'           ^^^^^^^^^^'
+12462,stderr,received,'  File "/opt/homebrew/anaconda3/lib/python3.11/site-packages/expyriment/misc/_timer.py", line 21, in get_time'
+12462,stderr,received,'    return perf_counter()'
+12462,stderr,received,'           ^^^^^^^^^^^^^^'
+12462,stderr,received,'KeyboardInterrupt'

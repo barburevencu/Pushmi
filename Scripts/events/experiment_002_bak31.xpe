@@ -1,0 +1,73 @@
+#Expyriment 1.0.0 (Python 3.11.6), .xpe-file, coding: UTF-8
+#date: Thu Oct 16 2025 15:35:56
+#sha1: 1fc91e
+#modules: constants.py (bf38d4), meg.py (23cfe5), eyelink.py (74605b)
+#display: size=(800, 600), window_mode=True, opengl=2
+#os: uname_result(system='Darwin', node='Barbus-MacBook-Air.local', release='24.6.0', version='Darwin Kernel Version 24.6.0: Mon Jul 14 11:30:51 PDT 2025; root:xnu-11417.140.69~1/RELEASE_ARM64_T8112', machine='arm64')
+Time,Type,Event,Value,Detail,Detail2
+589,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/louve.png
+594,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/poule.png
+598,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/tasse.png
+602,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/malle.png
+605,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/carre.png
+611,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/cercle.png
+615,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/etoile.png
+619,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/croix.png
+622,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/pentagone.png
+627,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/losange.png
+655,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/instr_1.png
+685,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/instr_2.png
+711,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/instr_3.png
+739,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/instr_4.png
+769,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/instr_5.png
+797,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/instr_6.png
+1502,design,log,
+#design: #exp: Pushmi
+#design: #dvn: subject_id,trial_type,block_number,trial_number,assignment_order,shape_pair,shape1,label1,shape2,label2,agent,patient,agent_shape,patient_shape,central_shape,lateral_position,movement,outcome,ground_truth,change,test_sentence,correct_key,timestamp,response,rt,correct
+#design: block_cnt,block_id,trial_cnt,trial_id
+1502,design,logged,
+1502,Experiment,started
+1515,Stimulus,presented,44
+2025,Keyboard,received,32,wait
+2025,Stimulus,presented,0
+2031,Stimulus,presented,35
+2082,Stimulus,presented,35
+2525,Stimulus,presented,21
+2525,Stimulus,presented,0
+2531,Stimulus,presented,35
+2576,Stimulus,presented,21
+2581,Stimulus,presented,35
+3525,Stimulus,presented,8
+3526,Stimulus,presented,0
+3531,Stimulus,presented,35
+3576,Stimulus,presented,8
+3581,Stimulus,presented,35
+4525,Stimulus,presented,0
+4531,Stimulus,presented,35
+4581,Stimulus,presented,35
+5526,Stimulus,presented,23
+5526,Stimulus,presented,0
+5532,Stimulus,presented,35
+5575,Stimulus,presented,23
+5581,Stimulus,presented,35
+6525,Stimulus,presented,5
+6525,Stimulus,presented,0
+6531,Stimulus,presented,35
+6576,Stimulus,presented,5
+6581,Stimulus,presented,35
+7145,Experiment,ended
+7275,stderr,received,'Traceback (most recent call last):'
+7275,stderr,received,'  File "/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Scripts/experiment.py", line 371, in <module>'
+7275,stderr,received,'    run_main_trial(**params)'
+7275,stderr,received,'  File "/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Scripts/experiment.py", line 218, in run_main_trial'
+7275,stderr,received,'    draw_seq(assignment_seq(order, shape1, label1, shape2, label2))'
+7275,stderr,received,'  File "/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Scripts/experiment.py", line 121, in draw_seq'
+7275,stderr,received,'    draw(stims, duration=dur, event=evt)'
+7275,stderr,received,'  File "/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Scripts/experiment.py", line 110, in draw'
+7275,stderr,received,"    key, rt = present(*stims, duration=duration-50, keys=keys, event='baseline')"
+7275,stderr,received,'              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'
+7275,stderr,received,'  File "/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Scripts/experiment.py", line 98, in present'
+7275,stderr,received,'    exp.clock.wait(remaining)'
+7275,stderr,received,'  File "/opt/homebrew/anaconda3/lib/python3.11/site-packages/expyriment/misc/_clock.py", line 154, in wait'
+7275,stderr,received,'    pygame.event.pump()'
+7275,stderr,received,'KeyboardInterrupt'

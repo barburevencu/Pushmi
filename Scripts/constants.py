@@ -1,5 +1,13 @@
 from pathlib import Path
 
+N_SUBJ = 30
+
+# Training block size constants
+TRAINING_BLOCK_1_SIZE = 6   # no assignment
+TRAINING_BLOCK_2_SIZE = 10  # with assignment
+TRAINING_BLOCK_3_SIZE = 20  # no animation
+
+
 SCALE_FACTOR = 1.5
 
 GREEN = (153, 229, 153)

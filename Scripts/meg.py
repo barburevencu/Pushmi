@@ -1,4 +1,5 @@
 from expyriment import io
+from expyriment.misc.constants import C_GREY, C_WHITE, K_f, K_j, K_SPACE
 import time
 from constants import *
 
@@ -7,7 +8,7 @@ class ResponseMEG:
     An Expyriment class to handle responses from MEG button boxes via parallel ports.
     """
 
-    def __init__(self, exp):
+    def __init__(self):
         """
         Initializes the parallel ports for response collection.
         """
@@ -53,3 +54,59 @@ class ResponseMEG:
                 return button, rt
 
         return None, None
+
+class HardwareManager:
+    """Manages MEG, eyetracker, and keyboard hardware."""
+    
+    def __init__(self, subject_id, meg=False, eyetracker=False):
+        """
+        Initialize hardware manager.
+        
+        Args:
+            subject_id: Unique identifier for the subject
+            meg: Whether to initialize MEG hardware
+            eyetracker: Whether to initialize eyetracker hardware
+        """
+        self.subject_id = subject_id
+        self.use_meg = meg
+        self.use_eyetracker = eyetracker
+        self.meg_handler = None
+        self.eyetracker = None
+        self.response_keys = None
+        self.port = None
+        
+    def setup(self):
+        """Initialize hardware based on configuration."""
+        if self.use_meg:
+            self.meg_handler = ResponseMEG()
+            self.port = self.meg_handler.ports['port2']
+            self.response_keys = ['LR', 'RR']
+        else:
+            self.response_keys = [K_f, K_j]
+        
+        if self.use_eyetracker:
+            import eyelink
+            cfg = {
+                'edf_file_base_name': f"s{self.subject_id:02}",
+                'background_color': C_GREY,
+                'foreground_color': C_WHITE,
+                'calibration_target_size': 100
+            }
+            self.eyetracker = eyelink.EyeLinkWrapper(cfg)
+            self.eyetracker.initialize()
+        
+        return self
+    
+    def calibrate_eyetracker(self, exp_keyboard):
+        """Calibrate eyetracker if available."""
+        if self.eyetracker:
+            self.eyetracker.calibrate()
+            exp_keyboard.wait(K_SPACE)
+            self.eyetracker.start_new_block()
+            self.eyetracker.start_recording()
+    
+    def cleanup(self):
+        """Cleanup hardware resources."""
+        if self.eyetracker:
+            self.eyetracker.stop_recording()
+            self.eyetracker.close()

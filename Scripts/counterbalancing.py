@@ -2,18 +2,35 @@ from os import name
 import random, csv, copy
 from constants import *
 from itertools import groupby, pairwise, permutations, product, combinations
-N_SUBJ = 30
+from typing import List, Dict, Any, Tuple, Optional
 
 def shuffled_copies(lst, n):
     """Return n unique shuffled versions of lst (up to all possible permutations)."""
+    if not lst:
+        return []
+    
+    def make_hashable(item):
+        """Convert list items to hashable tuples for comparison."""
+        if isinstance(item, list):
+            return tuple(item)
+        return item
+    
     copies, seen = [], set()
-    while len(copies) < n:
-        new_list = lst[:]          # shallow copy; we don't mutate inner rows
+    max_attempts = min(n * 100, 100000)  # Prevent infinite loops
+    attempts = 0
+    
+    while len(copies) < n and attempts < max_attempts:
+        new_list = lst[:]
         random.shuffle(new_list)
-        sig = tuple(id(x) for x in new_list)  # signature by object order
+        sig = tuple(make_hashable(x) for x in new_list)
         if sig not in seen:
             seen.add(sig)
             copies.append(new_list)
+        attempts += 1
+    
+    if len(copies) < n:
+        print(f"Warning: Only generated {len(copies)}/{n} unique permutations")
+    
     return copies
 
 def mirror(obj, elem1='A', elem2='B'):
@@ -26,22 +43,42 @@ def mirror(obj, elem1='A', elem2='B'):
         return tuple(mirror(x, elem1, elem2) for x in obj)
     return elem2 if obj == elem1 else elem1 if obj == elem2 else obj
 
-def balance_vars(n_vars=4, n_groups=6, mirrored=True):
-    """Return a list of n_groups * 2 lists, each with a balanced combination of n_vars A/B factors."""
+def balance_vars(n_vars: int = 4, n_groups: int = 6, mirrored: bool = True) -> List[List[str]]:
+    """
+    Generate balanced combinations of A/B factors for counterbalancing.
+    
+    Args:
+        n_vars: Number of binary (A/B) variables to counterbalance
+        n_groups: Number of distinct shuffled orderings to create
+        mirrored: If True, create mirrored versions (A↔B) and ensure
+                  no adjacent pairs are mirrors of each other
+    
+    Returns:
+        List of factor combinations, each being a list of A/B strings
+    
+    Raises:
+        ValueError: If valid shuffling cannot be found after 10000 attempts
+    """
     full_factor = [list(prod) for prod in product(['A', 'B'], repeat=n_vars)]
     shuffled = shuffled_copies(full_factor, n_groups)
+    
     if not mirrored:
         return shuffled
+    
     shuffled_mirror = mirror(shuffled, "A", "B")
     combined = shuffled + shuffled_mirror
     
     for _ in range(10000):
         random.shuffle(combined)
-        valid_shuffle = all(combined[i] != mirror(combined[i + 1]) for i in range(0, len(combined), 2))
+        valid_shuffle = all(
+            combined[i] != mirror(combined[i + 1]) 
+            for i in range(0, len(combined), 2)
+        )
         if valid_shuffle:
             return combined
-        
-    raise ValueError("Couldn't find a valid shuffling after 10000 attempts.")
+    
+    raise ValueError(f"Couldn't find valid shuffling after 10000 attempts. "
+                     f"Try reducing n_groups or n_vars.")
         
 def is_balanced(trials, cols=('assignment_order', 'agent', 'patient', 'correct_key', 'central_shape')):
     """Return True if each level of each column has equal 'pousse' and 'tire' outcomes."""
@@ -87,8 +124,8 @@ def sort_trials(trials):
         ))
 
 def starts_with_vowel(word):
-    """Return True if a word starts with a vowel (a, e, i, o, u, y, é, é)."""
-    return word[0].lower() in "aeiouhyééè"
+    """Return True if a word starts with a vowel (a, e, i, o, u, y, é, é)."""
+    return word[0].lower() in "aeiouhyéè"
 
 def article(noun):
     """Return the correct French definite article for a noun."""
@@ -222,33 +259,63 @@ def cb_base(phase, subject_id, shapes, animals, tools, double=True):
     return trials, change_order
 
 def cb_training(subject_id, start_block=0):
-    """Generate a counterbalanced list of training trials."""
-    trials, change_order = cb_base("training", subject_id, SHAPES_TRAINING, ANIMALS_TRAINING, TOOLS_TRAINING, double=False)
+    """Generate counterbalanced training trials in 3 phases."""
+    trials, change_order = cb_base("training", subject_id, SHAPES_TRAINING, 
+                                    ANIMALS_TRAINING, TOOLS_TRAINING, double=False)
 
     random.shuffle(trials)
-    add_numbers(trials, start_from=start_block)
+    
+    # Determine block boundaries
+    block_1_end = TRAINING_BLOCK_1_SIZE
+    block_2_end = block_1_end + TRAINING_BLOCK_2_SIZE
 
     for ti, t in enumerate(trials, 1):
-        bi = 0 if ti <= 6 else 1 if ti <= 16 else 2
-        t["label1"] = t["shape1"] if bi == 0 else t["label1"]
-        t["label2"] = t["shape2"] if bi == 0 else t["label2"]
+        # Determine block configuration (block_index, trial_type, trial_number)
+        if ti <= block_1_end:
+            block_info = (0, "training_no_assignment", ti)
+        elif ti <= block_2_end:
+            block_info = (1, "training_assignment", ti - block_1_end)
+        else:
+            block_info = (2, "training_no_animation", ti - block_2_end)
+        
+        bi, trial_type, trial_num = block_info
         t["block_number"] = bi
-        t["trial_type"] = "training_no_assignment" if bi == 0 else "training_assignment" if bi == 0 else "training_no_animation"
-        t["trial_number"] = ti if bi == 0 else ti - 6 if bi == 1 else ti - 16
+        t["trial_type"] = trial_type
+        t["trial_number"] = trial_num
+        
+        # For block 0 (shapes only), use shapes as labels
+        if bi == 0:
+            t["label1"] = t["shape1"]
+            t["label2"] = t["shape2"]
+            t["agent"] = t["shape1"] if t["agent_shape"] == "shape1" else t["shape2"]
+            t["patient"] = t["shape2"] if t["agent_shape"] == "shape1" else t["shape1"]
+        
         t["outcome"] = outcome(t)
         t["change"] = next(change_order, None) if t.get("correct_key") == "left" else None
-        t["agent"] = (t["shape1"] if t["agent_shape"] == "shape1" else t["shape2"]) if bi == 0 else t["agent"]
-        t["patient"]= (t["shape1"] if t["agent_shape"] == "shape2" else t["shape2"]) if bi == 0 else t["patient"]
         t["ground_truth"] = event_description(t)
         t["test_sentence"] = test_sentence(t)
 
     return trials
 
-def cb_main(subject_id, start_block=1, double=True):
-    """Generate a counterbalanced list of main experiment trials."""
-    balanced = False
-    while not balanced:
-        trials, change_order = cb_base("test", subject_id, SHAPES, ANIMALS, TOOLS, double=double)
+def cb_main(subject_id, start_block=1, double=True, max_attempts=1000):
+    """
+    Generate counterbalanced main experiment trials with attempt limit.
+    
+    Args:
+        subject_id: Unique identifier for the subject
+        start_block: Starting block number
+        double: Whether to include mirrored trials
+        max_attempts: Maximum number of attempts to find balanced design
+    
+    Returns:
+        List of counterbalanced trial dictionaries
+    
+    Raises:
+        RuntimeError: If balanced design cannot be found within max_attempts
+    """
+    for _ in range(max_attempts):
+        trials, change_order = cb_base("test", subject_id, SHAPES, 
+                                        ANIMALS, TOOLS, double=double)
 
         for t in trials:
             t["outcome"] = outcome(t)
@@ -256,8 +323,11 @@ def cb_main(subject_id, start_block=1, double=True):
             t["ground_truth"] = event_description(t)
             t["test_sentence"] = test_sentence(t)
 
-        if is_balanced(trials, cols=['assignment_order', 'agent', 'patient', 'correct_key', 'central_shape']):
-            balanced = True
+        if is_balanced(trials, cols=['assignment_order', 'agent', 'patient', 
+                                      'correct_key', 'central_shape']):
+            break
+    else:
+        raise RuntimeError(f"Could not find balanced design after {max_attempts} attempts")
 
     random.shuffle(trials)
     add_numbers(trials, start_from=start_block)
