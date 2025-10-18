@@ -1,5 +1,6 @@
 # --- Ignore the Data folder ---
 Data/
+Data Analysis/
 
 # --- Python cache and build files ---
 __pycache__/
