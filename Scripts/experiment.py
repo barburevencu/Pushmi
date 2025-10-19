@@ -18,9 +18,11 @@ def picture(filename, scale_factor):
     stim.scale(scale_factor)
     return preload(stim)
 
-def word(name):
+def word(string):
     """Load a word stimulus, applying accent corrections if needed."""
-    return preload(stimuli.TextLine(ACCENTS.get(name, name), position=ORIGIN, text_size=TEXTSIZE))
+    if string in NOUNS:
+        string = NOUNS[string].get("spelling", string)
+    return preload(stimuli.TextLine(string, position=ORIGIN, text_size=TEXTSIZE))
 
 def log(event):
     logger.info(f"Event: {event}; key: {TRIGGERS[event]}.")
@@ -81,7 +83,7 @@ def draw_fixation(duration, event='fixation'):
     """Display fixation cross for a given duration."""
     draw_wait_time(duration=duration, event=event)
 
-def draw_assignment(shape1, label1, shape2, label2, order, t = 1000):
+def draw_assignment(shape1, label1, shape2, label2, order, t=1000):
     """Draw the assignment phase."""
     shape_first = order == "shape_first"
     stim1, stim2 = (shape1, label1) if shape_first else (label1, shape1)
@@ -99,13 +101,11 @@ def draw_assignment(shape1, label1, shape2, label2, order, t = 1000):
     draw_wait_time(stim3, duration=t, event=event2[0])
     draw_wait_time(stim4, duration=t, event=event2[1])
 
-    draw_fixation(duration=t, event='fix_inter_assign')
+    draw_fixation(duration=t, event='fix_post_assign')
 
-def draw_locations(central_shape, lateral_shape, side, animate, central_x_final):
+def draw_locations(central_shape, lateral_shape, offset_x, animate, central_x_final):
     """Draw the assignment phase."""
-    offset = -SHAPE_WIDTH if side == 'left' else SHAPE_WIDTH
-    lateral_shape.move((offset, 0))
-
+    lateral_shape.reposition((offset_x, 0))
     draw_wait_time(central_shape, duration=1000, event='central_flash')
 
     if animate:
@@ -121,7 +121,6 @@ def draw_outcome(central_shape, lateral_shape, central_x_final, lateral_x_final)
     """Draw the outcome phase."""
     central_shape.reposition((central_x_final, 0))
     lateral_shape.reposition((lateral_x_final, 0))
-
     draw_wait_time(central_shape, lateral_shape, duration=200, event='outcome')
     draw_fixation(duration=500, event='fix_post_outcome')
 
@@ -173,13 +172,12 @@ def run_main_trial(**params):
     label1, label2 = words[params['label1']], words[params['label2']]
     central_shape = shape1 if params['central_shape'] == 'shape1' else shape2
     lateral_shape = shape2 if params['central_shape'] == 'shape1' else shape1
-    
+    offset_x = -SHAPE_WIDTH if params['lateral_position'] == 'left' else SHAPE_WIDTH
     central_x_final, lateral_x_final = final_positions(params['movement'], params['lateral_position'])
 
     draw_assignment(shape1, label1, shape2, label2, order=params['assignment_order'])
-    draw_locations(central_shape, lateral_shape, 
-                  side=params['lateral_position'],
-                  animate='assignment' in params['trial_type'],
+    draw_locations(central_shape, lateral_shape, offset_x,
+                  animate=params['trial_type'] not in ['test', 'training_no_animation'],
                   central_x_final=central_x_final)
     draw_outcome(central_shape, lateral_shape, central_x_final, lateral_x_final)
     
@@ -228,7 +226,7 @@ if __name__ == '__main__':
     else:
         OFFSET_X, ORIGIN = 0, (0, 0)
         SCALE_INSTR = 0.5
-        control.set_develop_mode(skip_wait_methods=True)
+        control.set_develop_mode(skip_wait_methods=False)
 
     hardware = HardwareManager(subject_id, 'meg' in flags, 'eyetracker' in flags).setup()
     response_keys, response_buttons = [K_f, K_j], hardware.response_keys if hardware.meg_handler else None
@@ -248,8 +246,8 @@ if __name__ == '__main__':
     w, h = exp.screen.size
 
     pulse = preload(stimuli.Rectangle((50, 50), position=(w//2 - 50, -h//2 + 50)))
-    images = {name: picture(name, SIZES[name]) for name in STIMS + SHAPES_TRAINING}
-    words = {name: word(name) for name in SENTENCE_STIMS}
+    images = {name: picture(name, SIZES[name]) for name in STIMS_TEST + SHAPES_TRAINING}
+    words = {noun: word(noun) for noun in SENTENCE_STIMS}
     fixation_dot = preload(stimuli.Circle(2.5 * SCALE_FACTOR, position=ORIGIN, colour=C_GREY))
     
     instructions = {name: preload(picture(f"instr_{num}", SCALE_INSTR)) for name, num in INSTRUCTIONS.items()}

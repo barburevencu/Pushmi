@@ -72,7 +72,7 @@ def article(noun):
     """Return the correct French definite article for a noun."""
     if noun[0].lower() in "aeiouhyéè":
         return f"L'{noun}"
-    return f"{'Le' if noun in MASC_NAMES else 'La'} {noun}"
+    return f"{'Le' if noun in MASC_NOUNS else 'La'} {noun}"
 
 def outcome(trial):
     """Return the outcome verb ('pousse' or 'tire') for a trial."""
@@ -120,7 +120,7 @@ def cb_localizer(subject_id, n_trials, n_blocks, start_block=1):
     """Generate counterbalanced localizer trials."""
     rows = []
     for block_num in range(start_block, n_blocks + start_block):
-        stims = list(STIMS) * (n_trials // len(STIMS))
+        stims = list(STIMS_TEST) * (n_trials // len(STIMS_TEST))
         mid = len(stims) // 2
         meanings = randomize(stims[:mid], stims[mid:], max_consecutive=2, max_spacing=30)
         trial_type = ['image' if i % 2 else 'word' for i in range(n_trials)]
@@ -140,16 +140,16 @@ def cb_localizer(subject_id, n_trials, n_blocks, start_block=1):
             })
     return rows
 
-def cb_base(phase, subject_id, shapes, animals, tools, double=True):
+def cb_base(phase, subject_id, shapes, animals, objects, double=True):
     """Generate base trial structure for a phase."""
     shape_pairs = [p for c in combinations(shapes, 2) for p in permutations(c, 2)]
     trials = [
         {"subject_id": subject_id, "shape_pair": sort_key(shape1 + "-" + shape2), "trial_type": phase,
-         "shape1": shape1, "shape2": shape2, "agent": animal, "patient": tool,
-         "label1": animal if agent == 'shape1' else tool, "label2": tool if agent == 'shape1' else animal,
+         "shape1": shape1, "shape2": shape2, "agent": animal, "patient": obj,
+         "label1": animal if agent == 'shape1' else obj, "label2": obj if agent == 'shape1' else animal,
          "agent_shape": agent, "patient_shape": 'shape2' if agent == 'shape1' else 'shape1', "assignment_order": order}
-        for (shape1, shape2), animal, tool, agent, order in 
-        product(shape_pairs, animals, tools, ["shape1", "shape2"], ["shape_first", "word_first"])
+        for (shape1, shape2), animal, obj, agent, order in
+        product(shape_pairs, animals, objects, ["shape1", "shape2"], ["shape_first", "word_first"])
     ]
     
     sort_trials(trials)
@@ -172,7 +172,7 @@ def cb_base(phase, subject_id, shapes, animals, tools, double=True):
 def cb_training(subject_id, start_block=0):
     """Generate counterbalanced training trials in 3 phases."""
     trials, change_order = cb_base("training", subject_id, SHAPES_TRAINING, 
-                                    ANIMALS_TRAINING, TOOLS_TRAINING, double=False)
+                                    ANIMALS_TRAINING, OBJECTS_TRAINING, double=False)
     random.shuffle(trials)
     block_1_end = TRAINING_BLOCK_1_SIZE
     block_2_end = block_1_end + TRAINING_BLOCK_2_SIZE
@@ -194,7 +194,7 @@ def cb_training(subject_id, start_block=0):
                 "agent": trial["shape1"] if trial["agent_shape"] == "shape1" else trial["shape2"],
                 "patient": trial["shape2"] if trial["agent_shape"] == "shape1" else trial["shape1"]
             })
-        
+    
         trial["outcome"] = outcome(trial)
         trial["change"] = change_order.pop(0) if trial.get("correct_key") == "left" else None
         trial["ground_truth"] = event_description(trial)
@@ -205,7 +205,7 @@ def cb_training(subject_id, start_block=0):
 def cb_main(subject_id, start_block=1, double=True):
     """Generate counterbalanced main experiment trials."""
     for _ in range(1000):
-        trials, change_order = cb_base("test", subject_id, SHAPES, ANIMALS, TOOLS, double=double)
+        trials, change_order = cb_base("test", subject_id, SHAPES, ANIMALS, OBJECTS, double=double)
         
         for trial in trials:
             trial["outcome"] = outcome(trial)

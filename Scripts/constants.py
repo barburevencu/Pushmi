@@ -53,63 +53,66 @@ DISPLACEMENT = int(100 * SCALE_FACTOR)
 # STIMULUS SETS
 # =============================================================================
 # Main experiment stimuli
-ANIMALS = ('louve', 'poule')                    # Animals (feminine)
-TOOLS = ('tasse', 'malle')                      # Tools (feminine)
-SHAPES = ('carre', 'cercle', 'etoile', 'croix') # Shapes (masculine)
+NOUNS = {'louve': {'type': 'animal', 'gender': 'feminine', 'phase': 'test'}, 
+         'poule': {'type': 'animal', 'gender': 'feminine', 'phase': 'test'}, 
+         'tasse': {'type': 'object', 'gender': 'feminine', 'phase': 'test'}, 
+         'malle': {'type': 'object', 'gender': 'feminine', 'phase': 'test'}, 
+         'carre': {'type': 'shape', 'gender': 'masculine', 'phase': 'test', 'spelling': 'carré'}, 
+         'cercle': {'type': 'shape', 'gender': 'masculine', 'phase': 'test'}, 
+         'etoile': {'type': 'shape', 'gender': 'masculine', 'phase': 'test', 'spelling': 'étoile'}, 
+         'croix': {'type': 'shape', 'gender': 'masculine', 'phase': 'test'}, 
+         'renard': {'type': 'animal', 'gender': 'masculine', 'phase': 'training'}, 
+         'pigeon': {'type': 'animal', 'gender': 'masculine', 'phase': 'training'}, 
+         'marteau': {'type': 'object', 'gender': 'masculine', 'phase': 'training'}, 
+         'crayon': {'type': 'object', 'gender': 'masculine', 'phase': 'training'}, 
+         'pentagone': {'type': 'shape', 'gender': 'masculine', 'phase': 'training'}, 
+         'hexagone': {'type': 'shape', 'gender': 'vowel', 'phase': None}, 
+         'losange': {'type': 'shape', 'gender': 'masculine', 'phase': 'training'}, 
+         'ellipse': {'type': 'shape', 'gender': 'vowel', 'phase': None}, 
+}
 
-# Training stimuli (separate set to avoid interference)
-SHAPES_TRAINING = ('pentagone', 'losange')
-ANIMALS_TRAINING = ('renard', 'pigeon')
-TOOLS_TRAINING = ('marteau', 'crayon')
+ANIMALS = [k for k, v in NOUNS.items() if v["phase"] == "test" and v["type"] == "animal"]
+OBJECTS = [k for k, v in NOUNS.items() if v["phase"] == "test" and v["type"] == "object"]
+SHAPES = [k for k, v in NOUNS.items() if v["phase"] == "test" and v["type"] == "shape"]
+STIMS_TEST = ANIMALS + OBJECTS + SHAPES
 
-# Combined sets
-STIMS = (*ANIMALS, *TOOLS, *SHAPES)
-ALL_SHAPES = SHAPES + SHAPES_TRAINING
+# Training stimuli
+ANIMALS_TRAINING = [k for k, v in NOUNS.items() if v["phase"] == "training" and v["type"] == "animal"]
+OBJECTS_TRAINING = [k for k, v in NOUNS.items() if v["phase"] == "training" and v["type"] == "object"]
+SHAPES_TRAINING = [k for k, v in NOUNS.items() if v["phase"] == "training" and v["type"] == "shape"]
 
 # Stimulus sizes (scale factors)
 SIZES = {
     k: (IMAGE_WIDTH if k in ['louve', 'malle'] else SHAPE_WIDTH) / 1000 
-    for k in STIMS + SHAPES_TRAINING
+    for k in STIMS_TEST + SHAPES_TRAINING
 }
 
 # =============================================================================
 # FRENCH LANGUAGE PROPERTIES
 # =============================================================================
 # Gender classification for article selection
-MASC_NAMES = ANIMALS_TRAINING + TOOLS_TRAINING + SHAPES_TRAINING
-FEM_NAMES = ('louve', 'poule', 'tasse', 'malle')
+MASC_NOUNS = [k for k, v in NOUNS.items() if v["gender"] == "masculine"]
+FEM_NOUNS = [k for k, v in NOUNS.items() if v["gender"] == "feminine"]
+VOWEL_NOUNS = [k for k, v in NOUNS.items() if v["gender"] == "vowel"]
 
-# Accented characters mapping
-ACCENTS = {
-    "carre": "carré", 
-    "etoile": "étoile"
-}
+VERBS = ["pousse", "tire"]
+
+ARTICLES = ["Le", "le", "La", "la"]
 
 # Noun pairs for change trials (swapping referents)
-NOUN_PAIRS = [
-    ("louve", "poule"),           # Animals
-    ("tasse", "malle"),           # Tools
-    ANIMALS_TRAINING,        # Training animals
-    TOOLS_TRAINING,       # Training tools
-    ("losange", "ellipse"),       # Training shapes
-    ("pentagone", "hexagone"),    # Training shapes
-]
+NOUN_PAIRS = list(zip(NOUNS.keys(), list(NOUNS.keys())[1:]))[::2]
+VERB_PAIRS = list(zip(VERBS, VERBS[1:]))[::2]
 
 # Bidirectional swap mappings for change trials
 SWAP_MAP = {
     "nouns": {a: b for a, b in NOUN_PAIRS} | {b: a for a, b in NOUN_PAIRS},
-    "verb": {"pousse": "tire", "tire": "pousse"},
+    "verb": {a: b for a, b in VERB_PAIRS} | {b: a for a, b in VERB_PAIRS},
 }
 
 # All possible words in test sentences
-SENTENCE_STIMS = (
-    SHAPES + 
-    MASC_NAMES + 
-    FEM_NAMES + 
-    ('La', 'la', 'Le', 'le', 'pousse', 'tire', 
-     "L'ellipse", "l'ellipse", "L'hexagone", "l'hexagone")
-)
-
+SENTENCE_STIMS = list(NOUNS.keys()) \
+                    + ARTICLES + VERBS + \
+                        [f"{article}'{noun}" for article in ("L", "l") for noun in VOWEL_NOUNS]
 
 # =============================================================================
 # RESPONSE MAPPING
