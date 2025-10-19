@@ -40,16 +40,15 @@ class ResponseMEG:
                     return self.buttons.get(name, {}).get(current_value)
         return None
 
-    def wait(self, buttons=['LR', 'RR'], duration=None):
+    def wait(self, buttons=['LR', 'RR'], duration=float('inf')):
         t0 = time.time() * 1000  # Convert to milliseconds
-        if duration is None: duration = float('inf')
 
         for port in self.ports.values():
             port.read_status()
 
         while time.time() * 1000 - t0 <= duration:
             button = self.check_response()
-            if button:
+            if button in buttons:
                 rt = time.time() * 1000 - t0
                 return button, rt
 

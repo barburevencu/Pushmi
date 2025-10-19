@@ -12,9 +12,9 @@ def preload(stimulus):
     stimulus.preload()
     return stimulus
 
-def picture(name, scale_factor):
+def picture(filename, scale_factor):
     """Load and scale an image stimulus."""
-    stim = stimuli.Picture(str(STIM_DIR / f"{name}.png"), position=ORIGIN)
+    stim = stimuli.Picture(str(STIM_DIR / f"{filename}.png"), position=ORIGIN)
     stim.scale(scale_factor)
     return preload(stim)
 
@@ -22,62 +22,126 @@ def word(name):
     """Load a word stimulus, applying accent corrections if needed."""
     return preload(stimuli.TextLine(ACCENTS.get(name, name), position=ORIGIN, text_size=TEXTSIZE))
 
-def present(*stims, duration=None, keys=None, buttons=None, event=None):
-    """Present stimuli and optionally wait for response."""
-    t0 = exp.clock.time
+def log(event):
+    logger.info(f"Event: {event}; key: {TRIGGERS[event]}.")
+    if hardware.meg_handler:
+        hardware.port.set_data(TRIGGERS.get(event, 0))
+    if hardware.eyetracker:
+        hardware.eyetracker.send_message(event)
+
+def draw_flip(*stims, event=None):
     exp.screen.clear()
     for s in stims:
         s.present(False, False)
-    fixation.present(False, True)
+    fixation_dot.present(False, False)
+    exp.screen.update()
+    if event: log(event)
 
-    if hardware.meg_handler and hardware.port and event:
-        hardware.port.set_data(TRIGGERS[event])
-    if hardware.eyetracker and event:
-        hardware.eyetracker.send_message(event)
-
-    if not (duration or keys or buttons):
-        return None, None
-
-    remaining = None if duration is None else max(0, duration - (exp.clock.time - t0))
-
-    if buttons and hardware.meg_handler:
-        key, rt = hardware.meg_handler.wait(buttons, remaining)
-        return KEYMAP.get(key), rt
-    if keys:
-        key_list = keys if isinstance(keys, list) else [keys]
-        key, rt = exp.keyboard.wait(key_list, remaining)
-        return KEYMAP.get(key), rt
-    if remaining:
-        exp.clock.wait(remaining)
-    return None, None
-
-def draw(*stims, duration=None, keys=None, buttons=None, event=None):
-    """Draw stimuli with pulse and collect responses."""
+def draw_pulse(*stims, event=None):
     t0 = exp.clock.time
-    present(*stims, pulse, duration=50, event=event)
-    key, rt = present(*stims, duration=duration-50, keys=keys, buttons=buttons, event='baseline')
-    logger.info(f"{event} duration: {exp.clock.time - t0} ms")
-    return key, rt
+    draw_flip(*stims, pulse, event=event)
+    exp.clock.wait(50 - (exp.clock.time - t0))
 
-def draw_seq(steps):
-    """Execute a sequence of drawing steps."""
-    for stims, dur, evt in steps:
-        if not stims:
-            draw(duration=dur, event=evt)
-        elif isinstance(stims, (list, tuple)):
-            draw(*stims, duration=dur, event=evt)
-        else:
-            draw(stims, duration=dur, event=evt)
+def draw_wait_time(*stims, duration, pulse=True, event=None):
+    t0 = exp.clock.time
+    if pulse:
+        draw_pulse(*stims, event=event)
+        draw_flip(*stims, event="baseline")
+    else:
+        draw_flip(*stims)
+    remaining = max(0, duration - (exp.clock.time - t0))
+    exp.clock.wait(max(0, remaining))
+    #logger.info(f"{event} duration: {exp.clock.time - t0} ms")
+
+def draw_wait_keys(*stims, keys, pulse=True, event=None, timeout=float('inf')):
+    t0 = exp.clock.time
+    if pulse:
+        draw_pulse(*stims, event=event)
+        draw_flip(*stims, event="baseline")
+    else:
+        draw_flip(*stims)
+    remaining = max(0, timeout - (exp.clock.time - t0))
+    key, rt = exp.keyboard.wait(keys, remaining)
+    logger.info(f"{event} duration: {exp.clock.time - t0} ms")
+    return KEYMAP.get(key), rt
+
+def draw_wait_buttons(*stims, buttons, pulse=True, event=None, timeout=float('inf')):
+    t0 = exp.clock.time
+    if pulse:
+        draw_pulse(*stims, event=event)
+        draw_flip(*stims, event="baseline")
+    else:
+        draw_flip(*stims)
+    remaining = max(0, timeout - (exp.clock.time - t0))
+    button, rt = hardware.meg_handler.wait(buttons, remaining)
+    logger.info(f"{event} duration: {exp.clock.time - t0} ms")
+    return KEYMAP.get(button), rt
+
+def draw_fixation(duration, event='fixation'):
+    """Display fixation cross for a given duration."""
+    draw_wait_time(duration=duration, event=event)
+
+def draw_assignment(shape1, label1, shape2, label2, order, t = 1000):
+    """Draw the assignment phase."""
+    shape_first = order == "shape_first"
+    stim1, stim2 = (shape1, label1) if shape_first else (label1, shape1)
+    stim3, stim4 = (shape2, label2) if shape_first else (label2, shape2)
+    event1 = ('assign_shape_1', 'assign_label_1') if shape_first else ('assign_label_1', 'assign_shape_1')
+    event2 = ('assign_shape_2', 'assign_label_2') if shape_first else ('assign_label_2', 'assign_shape_2')
+
+    draw_fixation(duration=t, event='fix_init')
+
+    draw_wait_time(stim1, duration=t, event=event1[0])
+    draw_wait_time(stim2, duration=t, event=event1[1])
+
+    draw_fixation(duration=t, event='fix_inter_assign')
+
+    draw_wait_time(stim3, duration=t, event=event2[0])
+    draw_wait_time(stim4, duration=t, event=event2[1])
+
+    draw_fixation(duration=t, event='fix_inter_assign')
+
+def draw_locations(central_shape, lateral_shape, side, animate, central_x_final):
+    """Draw the assignment phase."""
+    offset = -SHAPE_WIDTH if side == 'left' else SHAPE_WIDTH
+    lateral_shape.move((offset, 0))
+
+    draw_wait_time(central_shape, duration=1000, event='central_flash')
+
+    if animate:
+        draw_wait_time(central_shape, lateral_shape, duration=200, event='lateral_flash')
+        move_pair(central_shape, lateral_shape, central_x_final)
+
+    else:
+        draw_fixation(duration=800, event='fix_inter_flash')
+        draw_wait_time(lateral_shape, duration=200, event='lateral_flash')
+        draw_fixation(duration=800, event='fix_post_flash')
+
+def draw_outcome(central_shape, lateral_shape, central_x_final, lateral_x_final):
+    """Draw the outcome phase."""
+    central_shape.reposition((central_x_final, 0))
+    lateral_shape.reposition((lateral_x_final, 0))
+
+    draw_wait_time(central_shape, lateral_shape, duration=200, event='outcome')
+    draw_fixation(duration=500, event='fix_post_outcome')
+
+def show_instructions(instruction_stim):
+    """Display instruction screen and wait for spacebar."""
+    draw_wait_keys(instruction_stim, pulse=False, keys=K_SPACE)
 
 def run_localizer_trial(**params):
     """Run a single localizer trial."""
     t0 = exp.clock.time
     stim = images[params['shape1']] if params['shape1'] else words[params['label1']]
-    key, rt = draw(stim, duration=800, keys=response_keys, buttons=response_buttons, event=params['trial_type'])
-    
+
+    if hardware.meg_handler:
+        key, rt = draw_wait_buttons(stim, timeout=800, buttons=response_buttons, event=params['trial_type'])
+    else:
+        key, rt = draw_wait_keys(stim, timeout=800, keys=response_keys, event=params['trial_type'])
+
     if key != params['correct_key']:
-        present(feedback['incorrect'], stim, duration=100)
-        present(stim)
+        draw_wait_time(feedback['incorrect'], stim, pulse=False, duration=100)
+        draw_flip(stim)
     
     params.update(timestamp=t0, response=key, rt=rt, correct=(key == params['correct_key']))
     exp.data.add([params.get(k) for k in var_names])
@@ -90,21 +154,7 @@ def final_positions(movement, lateral_position):
     pos = right if movement == "right" else left
     return pos if lateral_position == "left" else pos[::-1]
 
-def assignment_seq(order, shape1, label1, shape2, label2):
-    """Build the assignment sequence based on whether shape or label comes first."""
-    if order == "shape_first":
-        return [(None, INITIAL_T, "fix_init"), 
-                (shape1, ASSIGNMENT_T, "assign_1_shape"), (label1, ASSIGNMENT_T, "assign_1_label"),
-                (None, POST_ASSIGN_T, "fix_inter_assign"), 
-                (shape2, ASSIGNMENT_T, "assign_2_shape"), (label2, ASSIGNMENT_T, "assign_2_label"),
-                (None, POST_ASSIGN_T, "fix_post_assign")]
-    return [(None, INITIAL_T, "fix_init"), 
-            (label1, ASSIGNMENT_T, "assign_1_label"), (shape1, ASSIGNMENT_T, "assign_1_shape"),
-            (None, POST_ASSIGN_T, "fix_inter_assign"), 
-            (label2, ASSIGNMENT_T, "assign_2_label"), (shape2, ASSIGNMENT_T, "assign_2_shape"),
-            (None, POST_ASSIGN_T, "fix_post_assign")]
-
-def move_pair_to_x(central, lateral, target_x, speed=3):
+def move_pair(central, lateral, target_x, speed=3):
     """Slide both shapes horizontally until target_x reached."""
     current_x = central.position[0]
     step = speed if target_x > current_x else -speed
@@ -113,7 +163,7 @@ def move_pair_to_x(central, lateral, target_x, speed=3):
         lateral.move((step, 0))
         current_x = central.position[0]
         if target_x != current_x:
-            present(central, lateral)
+            draw_flip(central, lateral)
 
 def run_main_trial(**params):
     """Run a single main experiment trial."""
@@ -124,42 +174,41 @@ def run_main_trial(**params):
     central_shape = shape1 if params['central_shape'] == 'shape1' else shape2
     lateral_shape = shape2 if params['central_shape'] == 'shape1' else shape1
     
-    offset = -SHAPE_WIDTH if params['lateral_position'] == 'left' else SHAPE_WIDTH
-    central_x, lateral_x = final_positions(params['movement'], params['lateral_position'])
-    
-    draw_seq(assignment_seq(params['assignment_order'], shape1, label1, shape2, label2))
-    lateral_shape.move((offset, 0))
+    central_x_final, lateral_x_final = final_positions(params['movement'], params['lateral_position'])
 
-    if params['trial_type'] in ['test', 'training_no_animation']:
-        draw_seq([(central_shape, CENTRAL_FLASH_T, 'central_flash'), (None, POST_FLASH_T, 'fix_inter_flash'),
-                  (lateral_shape, LATERAL_FLASH_T, 'lateral_flash'), (None, POST_FLASH_T, 'fix_post_flash')])
-    else:
-        draw_seq([(central_shape, CENTRAL_FLASH_T, 'central_flash'), 
-                  ([central_shape, lateral_shape], CENTRAL_FLASH_T, 'central_flash')])
-        move_pair_to_x(central_shape, lateral_shape, central_x)
-
-    central_shape.reposition((central_x, 0))
-    lateral_shape.reposition((lateral_x, 0))
-    draw_seq([([central_shape, lateral_shape], OUTCOME_T, 'outcome'), (None, POST_OUTCOME_T, 'fix_post_outcome')])
+    draw_assignment(shape1, label1, shape2, label2, order=params['assignment_order'])
+    draw_locations(central_shape, lateral_shape, 
+                  side=params['lateral_position'],
+                  animate='assignment' in params['trial_type'],
+                  central_x_final=central_x_final)
+    draw_outcome(central_shape, lateral_shape, central_x_final, lateral_x_final)
     
+    # Test sentence
     for i, word in enumerate(params['test_sentence'].split(), 1):
-        draw(words[word], duration=WORD_T, event=f'test_{i}')
+        draw_wait_time(words[word], duration=400, event=f'test_{i}')
     
-    key, rt = draw(duration=RESPONSE_T, keys=response_keys, buttons=response_buttons, event='response')
+    if hardware.meg_handler:
+        key, rt = draw_wait_buttons(timeout=1800, buttons=response_buttons, event='response')
+    else:
+        key, rt = draw_wait_keys(timeout=1800, keys=response_keys, event='response')
+
+    fb_key = "timeout" if rt is None else ("correct" if key == params['correct_key'] else "incorrect")
+    
+    draw_wait_time(feedback[fb_key], duration=200, event=f"fb_{fb_key}")
+    
+    # Reset shape parameters
     shape1.reposition(ORIGIN)
     shape2.reposition(ORIGIN)
-    
-    fb_key = "timeout" if rt is None else ("correct" if key == params['correct_key'] else "incorrect")
+
+    # Add data to experiment data
     params.update(timestamp=t0, response=key, rt=rt, correct=(key == params['correct_key']))
     exp.data.add([params.get(k) for k in var_names])
-    draw(feedback[fb_key], duration=FEEDBACK_T, event=f"fb_{fb_key}")
-    exp.keyboard.wait()
 
 def take_break(message):
     """Display break message and wait for spacebar."""
     if hardware.eyetracker:
         hardware.eyetracker.stop_recording()
-    present(message, keys=K_SPACE)
+    show_instructions(message)
     if hardware.eyetracker:
         hardware.eyetracker.start_new_block()
         hardware.eyetracker.start_recording()
@@ -179,7 +228,7 @@ if __name__ == '__main__':
     else:
         OFFSET_X, ORIGIN = 0, (0, 0)
         SCALE_INSTR = 0.5
-        control.set_develop_mode(skip_wait_methods=False)
+        control.set_develop_mode(skip_wait_methods=True)
 
     hardware = HardwareManager(subject_id, 'meg' in flags, 'eyetracker' in flags).setup()
     response_keys, response_buttons = [K_f, K_j], hardware.response_keys if hardware.meg_handler else None
@@ -201,7 +250,7 @@ if __name__ == '__main__':
     pulse = preload(stimuli.Rectangle((50, 50), position=(w//2 - 50, -h//2 + 50)))
     images = {name: picture(name, SIZES[name]) for name in STIMS + SHAPES_TRAINING}
     words = {name: word(name) for name in SENTENCE_STIMS}
-    fixation = preload(stimuli.Circle(2.5 * SCALE_FACTOR, position=ORIGIN, colour=C_GREY))
+    fixation_dot = preload(stimuli.Circle(2.5 * SCALE_FACTOR, position=ORIGIN, colour=C_GREY))
     
     instructions = {name: preload(picture(f"instr_{num}", SCALE_INSTR)) for name, num in INSTRUCTIONS.items()}
     feedback = {label: preload(stimuli.Rectangle((200, 100), position=ORIGIN, colour=colour))
@@ -218,31 +267,31 @@ if __name__ == '__main__':
         hardware.calibrate_eyetracker(exp.keyboard)
     
     if 'localizer' in flags:
-        present(instructions["localizer"], keys=K_SPACE)
-        for block in localizer_trials[:1]:
+        show_instructions(instructions["localizer"])
+        for block in localizer_trials:
             for params in block:
                 run_localizer_trial(**params)
         take_break(pause_message)
     
     if 'training' in flags:
-        present(instructions["training_intro"], keys=K_SPACE)
-        present(instructions["training_assignment"], keys=K_SPACE)
+        show_instructions(instructions["training_intro"])
+        show_instructions(instructions["training_assignment"])
         for block_number, block in enumerate(training_trials):
             for params in block:
                 run_main_trial(**params)
             if block_number == 0:
-                present(instructions["training_no_animation"], keys=K_SPACE)
+                show_instructions(instructions["training_no_animation"])
             elif block_number == 1:
-                present(instructions["training_animation"], keys=K_SPACE)
+                show_instructions(instructions["training_animation"])
         take_break(pause_message)
     
-    present(instructions["main_experiment"], keys=K_SPACE)
-    for block_number, block in enumerate(main_trials[:1], 1):
+    show_instructions(instructions["main_experiment"])
+    for block_number, block in enumerate(main_trials, 1):
         for params in block:
             run_main_trial(**params)
         if block_number != N_BLOCKS:
             take_break(pause_message)
-    present(end_message, keys=K_SPACE)
+    show_instructions(end_message)
     
     hardware.cleanup()
     control.end()

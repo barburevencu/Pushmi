@@ -18,7 +18,7 @@ BLOCK_SIZE = 32      # Trials per block
 # Training block sizes
 TRAINING_BLOCK_1_SIZE = 6   # Phase 1: No assignment (shapes only)
 TRAINING_BLOCK_2_SIZE = 10  # Phase 2: With assignment
-TRAINING_BLOCK_3_SIZE = 20  # Phase 3: No animation
+TRAINING_BLOCK_3_SIZE = 16  # Phase 3: No animation
 
 # =============================================================================
 # DISPLAY & VISUAL PARAMETERS
@@ -42,25 +42,12 @@ DISPLACEMENT = int(100 * SCALE_FACTOR)
 # TIMING PARAMETERS (all in milliseconds)
 # =============================================================================
 
-# Main experiment trial timing
-INITIAL_T = 500           # Initial fixation
-ASSIGNMENT_T = 1000       # Shape-label assignment display
-POST_ASSIGN_T = 1000      # Post-assignment fixation
-CENTRAL_FLASH_T = 1000    # Central shape flash
-POST_FLASH_T = 800        # Post-flash fixation
-LATERAL_FLASH_T = 200     # Lateral shape flash
-OUTCOME_T = 200           # Outcome display (push/pull)
-POST_OUTCOME_T = 500      # Post-outcome fixation
-WORD_T = 400              # Word presentation in test sentence
-RESPONSE_T = 1800         # Response window
-FEEDBACK_T = 200          # Feedback display
-
-# Eyetracker calibration timing (currently unused)
-TEXT_DISPLAY_TIME = 5000
-BLANK_DISPLAY_TIME = 2000
-CIRCLE_DISPLAY_TIME = 1500
-CIRCLE_RADIUS = 20
-TEXT_SIZE = 50
+# # Eyetracker calibration timing (currently unused)
+# TEXT_DISPLAY_TIME = 5000
+# BLANK_DISPLAY_TIME = 2000
+# CIRCLE_DISPLAY_TIME = 1500
+# CIRCLE_RADIUS = 20
+# TEXT_SIZE = 50
 
 # =============================================================================
 # STIMULUS SETS
@@ -72,8 +59,8 @@ SHAPES = ('carre', 'cercle', 'etoile', 'croix') # Shapes (masculine)
 
 # Training stimuli (separate set to avoid interference)
 SHAPES_TRAINING = ('pentagone', 'losange')
-ANIMALS_TRAINING = ('mouton', 'pigeon')
-TOOLS_TRAINING = ('marteau', 'couteau')
+ANIMALS_TRAINING = ('renard', 'pigeon')
+TOOLS_TRAINING = ('marteau', 'crayon')
 
 # Combined sets
 STIMS = (*ANIMALS, *TOOLS, *SHAPES)
@@ -89,7 +76,7 @@ SIZES = {
 # FRENCH LANGUAGE PROPERTIES
 # =============================================================================
 # Gender classification for article selection
-MASC_NAMES = ('mouton', 'pigeon', 'marteau', 'couteau', 'pentagone', 'losange')
+MASC_NAMES = ANIMALS_TRAINING + TOOLS_TRAINING + SHAPES_TRAINING
 FEM_NAMES = ('louve', 'poule', 'tasse', 'malle')
 
 # Accented characters mapping
@@ -102,8 +89,8 @@ ACCENTS = {
 NOUN_PAIRS = [
     ("louve", "poule"),           # Animals
     ("tasse", "malle"),           # Tools
-    ("mouton", "pigeon"),         # Training animals
-    ("marteau", "couteau"),       # Training tools
+    ANIMALS_TRAINING,        # Training animals
+    TOOLS_TRAINING,       # Training tools
     ("losange", "ellipse"),       # Training shapes
     ("pentagone", "hexagone"),    # Training shapes
 ]
@@ -175,16 +162,14 @@ BUTTONS = {
 
 # Map event names to integer trigger codes sent to MEG
 TRIGGERS = {
-    # MEG baseline: set_data(0)
     'baseline': 0,
-    
     # Assignment phase
     'fix_init': 1,
-    'assign_1_shape': 2,
-    'assign_1_label': 3,
+    'assign_shape_1': 2,
+    'assign_label_1': 3,
     'fix_inter_assign': 4,
-    'assign_2_shape': 5,
-    'assign_2_label': 6,
+    'assign_shape_2': 5,
+    'assign_label_2': 6,
     'fix_post_assign': 7,
     
     # Animation/flash phase

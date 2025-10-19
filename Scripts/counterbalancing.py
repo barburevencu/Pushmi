@@ -149,7 +149,7 @@ def cb_base(phase, subject_id, shapes, animals, tools, double=True):
          "label1": animal if agent == 'shape1' else tool, "label2": tool if agent == 'shape1' else animal,
          "agent_shape": agent, "patient_shape": 'shape2' if agent == 'shape1' else 'shape1', "assignment_order": order}
         for (shape1, shape2), animal, tool, agent, order in 
-        product(shape_pairs, animals, tools, ["shape1", "shape2"], ["symbol_first", "referent_first"])
+        product(shape_pairs, animals, tools, ["shape1", "shape2"], ["shape_first", "word_first"])
     ]
     
     sort_trials(trials)
