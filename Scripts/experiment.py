@@ -153,6 +153,7 @@ def run_main_trial(**params):
     params.update(timestamp=t0, response=key, rt=rt, correct=(key == params['correct_key']))
     exp.data.add([params.get(k) for k in var_names])
     draw(feedback[fb_key], duration=FEEDBACK_T, event=f"fb_{fb_key}")
+    exp.keyboard.wait()
 
 def take_break(message):
     """Display break message and wait for spacebar."""
@@ -218,7 +219,7 @@ if __name__ == '__main__':
     
     if 'localizer' in flags:
         present(instructions["localizer"], keys=K_SPACE)
-        for block in localizer_trials:
+        for block in localizer_trials[:1]:
             for params in block:
                 run_localizer_trial(**params)
         take_break(pause_message)
@@ -236,7 +237,7 @@ if __name__ == '__main__':
         take_break(pause_message)
     
     present(instructions["main_experiment"], keys=K_SPACE)
-    for block_number, block in enumerate(main_trials, 1):
+    for block_number, block in enumerate(main_trials[:1], 1):
         for params in block:
             run_main_trial(**params)
         if block_number != N_BLOCKS:

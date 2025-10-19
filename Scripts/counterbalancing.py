@@ -165,9 +165,9 @@ def cb_base(phase, subject_id, shapes, animals, tools, double=True):
     
     map_AB(trials, MAPPINGS)
     change_order = [key for key, prop in {"agent": 1/4, "patient": 1/4, "verb": 1/2}.items() 
-                    for _ in range(int(len(trials) // 4 * prop))]
+                    for _ in range(int(len(trials) // 2 * prop))]
     random.shuffle(change_order)
-    return trials, iter(change_order)
+    return trials, change_order
 
 def cb_training(subject_id, start_block=0):
     """Generate counterbalanced training trials in 3 phases."""
@@ -196,7 +196,7 @@ def cb_training(subject_id, start_block=0):
             })
         
         trial["outcome"] = outcome(trial)
-        trial["change"] = next(change_order, None) if trial.get("correct_key") == "left" else None
+        trial["change"] = change_order.pop(0) if trial.get("correct_key") == "left" else None
         trial["ground_truth"] = event_description(trial)
         trial["test_sentence"] = test_sentence(trial)
     
@@ -209,7 +209,7 @@ def cb_main(subject_id, start_block=1, double=True):
         
         for trial in trials:
             trial["outcome"] = outcome(trial)
-            trial["change"] = next(change_order, None) if trial.get("correct_key") == "left" else None
+            trial["change"] = change_order.pop(0) if trial.get("correct_key") == "left" else None
             trial["ground_truth"] = event_description(trial)
             trial["test_sentence"] = test_sentence(trial)
         

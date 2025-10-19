@@ -1,0 +1,47 @@
+#Expyriment 1.0.0 (Python 3.11.6), .xpe-file, coding: UTF-8
+#date: Sun Oct 19 2025 15:09:34
+#sha1: 763454
+#modules: constants.py (23e8ce), hardware.py (41acaf), eyelink.py (74605b)
+#display: size=(800, 600), window_mode=True, opengl=2
+#os: uname_result(system='Darwin', node='Mac.lan', release='24.6.0', version='Darwin Kernel Version 24.6.0: Mon Jul 14 11:30:51 PDT 2025; root:xnu-11417.140.69~1/RELEASE_ARM64_T8112', machine='arm64')
+Time,Type,Event,Value,Detail,Detail2
+594,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/louve.png
+599,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/poule.png
+604,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/tasse.png
+608,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/malle.png
+611,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/carre.png
+614,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/cercle.png
+618,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/etoile.png
+621,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/croix.png
+624,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/pentagone.png
+628,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/losange.png
+653,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/instr_1.png
+666,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/instr_2.png
+682,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/instr_3.png
+697,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/instr_4.png
+709,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/instr_5.png
+721,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/instr_6.png
+1165,design,log,
+#design: #exp: Pushmi
+#design: #dvn: subject_id,trial_type,block_number,trial_number,assignment_order,shape_pair,shape1,label1,shape2,label2,agent,patient,agent_shape,patient_shape,central_shape,lateral_position,movement,outcome,ground_truth,change,test_sentence,correct_key,timestamp,response,rt,correct
+#design: block_cnt,block_id,trial_cnt,trial_id
+1165,design,logged,
+1165,Experiment,started
+1165,stdout,received,'32'
+1165,stdout,received,'32'
+1165,stdout,received,'32'
+1165,stdout,received,'32'
+1165,stdout,received,'32'
+1165,stdout,received,'32'
+1165,stdout,received,'32'
+1165,stdout,received,'32'
+1165,stdout,received,'32'
+1165,stdout,received,'32'
+1165,stdout,received,'32'
+1165,stdout,received,'32'
+1165,Stimulus,presented,41
+1170,Stimulus,presented,35
+5415,Experiment,paused
+5420,Stimulus,presented,47
+5962,Keyboard,received,y,wait_char
+5962,Experiment,ended
