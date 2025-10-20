@@ -1,0 +1,135 @@
+#Expyriment 1.0.0 (Python 3.11.6), .xpe-file, coding: UTF-8
+#date: Mon Oct 20 2025 09:03:58
+#sha1: 6aecd6
+#modules: constants.py (cf262f), hardware.py (b37856), eyelink.py (74605b)
+#display: size=(800, 600), window_mode=True, opengl=2
+#os: uname_result(system='Darwin', node='Barbus-MacBook-Air.local', release='24.6.0', version='Darwin Kernel Version 24.6.0: Mon Jul 14 11:30:51 PDT 2025; root:xnu-11417.140.69~1/RELEASE_ARM64_T8112', machine='arm64')
+Time,Type,Event,Value,Detail,Detail2
+592,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/louve.png
+593,stdout,received,'louve (120, 120)'
+597,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/poule.png
+598,stdout,received,'poule (80, 80)'
+601,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/tasse.png
+602,stdout,received,'tasse (96, 96)'
+605,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/malle.png
+606,stdout,received,'malle (120, 120)'
+608,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/carre.png
+609,stdout,received,'carre (80, 80)'
+612,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/cercle.png
+612,stdout,received,'cercle (80, 80)'
+615,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/etoile.png
+616,stdout,received,'etoile (80, 80)'
+618,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/croix.png
+619,stdout,received,'croix (80, 80)'
+621,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/pentagone.png
+622,stdout,received,'pentagone (80, 80)'
+625,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/losange.png
+626,stdout,received,'losange (80, 80)'
+647,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/instr_1.png
+651,stdout,received,'instr_1 (960, 540)'
+660,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/instr_2.png
+664,stdout,received,'instr_2 (960, 540)'
+676,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/instr_3.png
+679,stdout,received,'instr_3 (960, 540)'
+692,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/instr_4.png
+696,stdout,received,'instr_4 (960, 540)'
+706,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/instr_5.png
+710,stdout,received,'instr_5 (960, 540)'
+720,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/instr_6.png
+723,stdout,received,'instr_6 (960, 540)'
+1282,design,log,
+#design: #exp: Pushmi
+#design: #dvn: subject_id,trial_type,block_number,trial_number,assignment_order,shape_pair,shape1,label1,shape2,label2,agent,patient,agent_shape,patient_shape,central_shape,lateral_position,movement,outcome,ground_truth,change,test_sentence,correct_key,timestamp,response,rt,correct
+#design: block_cnt,block_id,trial_cnt,trial_id
+1282,design,logged,
+1282,Experiment,started
+1282,Stimulus,presented,43
+1283,Stimulus,presented,37
+1840,Keyboard,received,32,wait
+1841,Stimulus,presented,0
+1841,Stimulus,presented,37
+1891,Stimulus,presented,37
+2840,Stimulus,presented,7
+2840,Stimulus,presented,0
+2840,Stimulus,presented,37
+2890,Stimulus,presented,7
+2890,Stimulus,presented,37
+3840,Stimulus,presented,14
+3840,Stimulus,presented,0
+3840,Stimulus,presented,37
+3890,Stimulus,presented,14
+3890,Stimulus,presented,37
+4841,Stimulus,presented,0
+4841,Stimulus,presented,37
+4890,Stimulus,presented,37
+5840,Stimulus,presented,8
+5841,Stimulus,presented,0
+5841,Stimulus,presented,37
+5890,Stimulus,presented,8
+5890,Stimulus,presented,37
+6841,Stimulus,presented,11
+6841,Stimulus,presented,0
+6841,Stimulus,presented,37
+6890,Stimulus,presented,11
+6890,Stimulus,presented,37
+7841,Stimulus,presented,0
+7841,Stimulus,presented,37
+7890,Stimulus,presented,37
+8841,Stimulus,presented,8
+8841,Stimulus,presented,0
+8841,Stimulus,presented,37
+8891,Stimulus,presented,8
+8891,Stimulus,presented,37
+9841,Stimulus,presented,0
+9841,Stimulus,presented,37
+9891,Stimulus,presented,37
+10641,Stimulus,presented,7
+10641,Stimulus,presented,0
+10641,Stimulus,presented,37
+10691,Stimulus,presented,7
+10691,Stimulus,presented,37
+10841,Stimulus,presented,0
+10841,Stimulus,presented,37
+10891,Stimulus,presented,37
+11641,Stimulus,presented,8
+11641,Stimulus,presented,7
+11641,Stimulus,presented,0
+11641,Stimulus,presented,37
+11691,Stimulus,presented,8
+11691,Stimulus,presented,7
+11691,Stimulus,presented,37
+11841,Stimulus,presented,0
+11841,Stimulus,presented,37
+11891,Stimulus,presented,37
+12341,Stimulus,presented,29
+12341,Stimulus,presented,0
+12341,Stimulus,presented,37
+12391,Stimulus,presented,29
+12391,Stimulus,presented,37
+12742,Stimulus,presented,11
+12742,Stimulus,presented,0
+12742,Stimulus,presented,37
+12791,Stimulus,presented,11
+12791,Stimulus,presented,37
+13141,Stimulus,presented,32
+13141,Stimulus,presented,0
+13141,Stimulus,presented,37
+13191,Stimulus,presented,32
+13191,Stimulus,presented,37
+13541,Stimulus,presented,30
+13541,Stimulus,presented,0
+13541,Stimulus,presented,37
+13591,Stimulus,presented,30
+13591,Stimulus,presented,37
+13941,Stimulus,presented,14
+13941,Stimulus,presented,0
+13941,Stimulus,presented,37
+13991,Stimulus,presented,14
+13991,Stimulus,presented,37
+14341,Stimulus,presented,0
+14341,Stimulus,presented,37
+14391,Stimulus,presented,37
+15567,Experiment,paused
+15585,Stimulus,presented,49
+16119,Keyboard,received,y,wait_char
+16119,Experiment,ended

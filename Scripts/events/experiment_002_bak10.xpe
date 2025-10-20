@@ -1,0 +1,264 @@
+#Expyriment 1.0.0 (Python 3.11.6), .xpe-file, coding: UTF-8
+#date: Mon Oct 20 2025 08:58:56
+#sha1: 6aecd6
+#modules: constants.py (32e774), hardware.py (b37856), eyelink.py (74605b)
+#display: size=(800, 600), window_mode=True, opengl=2
+#os: uname_result(system='Darwin', node='Barbus-MacBook-Air.local', release='24.6.0', version='Darwin Kernel Version 24.6.0: Mon Jul 14 11:30:51 PDT 2025; root:xnu-11417.140.69~1/RELEASE_ARM64_T8112', machine='arm64')
+Time,Type,Event,Value,Detail,Detail2
+570,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/louve.png
+571,stdout,received,'louve (80, 80)'
+575,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/poule.png
+576,stdout,received,'poule (80, 80)'
+578,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/tasse.png
+579,stdout,received,'tasse (80, 80)'
+582,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/malle.png
+583,stdout,received,'malle (80, 80)'
+585,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/carre.png
+586,stdout,received,'carre (80, 80)'
+589,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/cercle.png
+590,stdout,received,'cercle (80, 80)'
+592,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/etoile.png
+593,stdout,received,'etoile (80, 80)'
+596,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/croix.png
+597,stdout,received,'croix (80, 80)'
+600,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/pentagone.png
+600,stdout,received,'pentagone (80, 80)'
+603,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/losange.png
+604,stdout,received,'losange (80, 80)'
+626,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/instr_1.png
+630,stdout,received,'instr_1 (960, 540)'
+640,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/instr_2.png
+644,stdout,received,'instr_2 (960, 540)'
+655,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/instr_3.png
+659,stdout,received,'instr_3 (960, 540)'
+670,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/instr_4.png
+674,stdout,received,'instr_4 (960, 540)'
+683,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/instr_5.png
+686,stdout,received,'instr_5 (960, 540)'
+696,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/instr_6.png
+699,stdout,received,'instr_6 (960, 540)'
+1321,design,log,
+#design: #exp: Pushmi
+#design: #dvn: subject_id,trial_type,block_number,trial_number,assignment_order,shape_pair,shape1,label1,shape2,label2,agent,patient,agent_shape,patient_shape,central_shape,lateral_position,movement,outcome,ground_truth,change,test_sentence,correct_key,timestamp,response,rt,correct
+#design: block_cnt,block_id,trial_cnt,trial_id
+1321,design,logged,
+1321,Experiment,started
+1321,Stimulus,presented,38
+1321,Stimulus,presented,37
+1751,Keyboard,received,32,wait
+1751,Stimulus,presented,18
+1751,Stimulus,presented,0
+1751,Stimulus,presented,37
+1801,Stimulus,presented,18
+1801,Stimulus,presented,37
+2551,Keyboard,received,None,wait
+2751,Stimulus,presented,7
+2751,Stimulus,presented,0
+2751,Stimulus,presented,37
+2801,Stimulus,presented,7
+2801,Stimulus,presented,37
+3551,Keyboard,received,None,wait
+3751,Stimulus,presented,15
+3751,Stimulus,presented,0
+3751,Stimulus,presented,37
+3801,Stimulus,presented,15
+3801,Stimulus,presented,37
+4551,Keyboard,received,None,wait
+4751,Stimulus,presented,2
+4751,Stimulus,presented,0
+4751,Stimulus,presented,37
+4801,Stimulus,presented,2
+4801,Stimulus,presented,37
+5551,Keyboard,received,None,wait
+5752,Stimulus,presented,11
+5752,Stimulus,presented,0
+5752,Stimulus,presented,37
+5801,Stimulus,presented,11
+5801,Stimulus,presented,37
+6551,Keyboard,received,None,wait
+6751,Stimulus,presented,5
+6751,Stimulus,presented,0
+6751,Stimulus,presented,37
+6801,Stimulus,presented,5
+6801,Stimulus,presented,37
+7552,Keyboard,received,None,wait
+7751,Stimulus,presented,18
+7751,Stimulus,presented,0
+7751,Stimulus,presented,37
+7801,Stimulus,presented,18
+7801,Stimulus,presented,37
+8552,Keyboard,received,None,wait
+8751,Stimulus,presented,5
+8751,Stimulus,presented,0
+8751,Stimulus,presented,37
+8801,Stimulus,presented,5
+8801,Stimulus,presented,37
+9551,Keyboard,received,None,wait
+9751,Stimulus,presented,14
+9751,Stimulus,presented,0
+9751,Stimulus,presented,37
+9801,Stimulus,presented,14
+9801,Stimulus,presented,37
+10551,Keyboard,received,None,wait
+10752,Stimulus,presented,4
+10752,Stimulus,presented,0
+10752,Stimulus,presented,37
+10801,Stimulus,presented,4
+10801,Stimulus,presented,37
+11551,Keyboard,received,None,wait
+11552,Stimulus,presented,46
+11552,Stimulus,presented,4
+11552,Stimulus,presented,37
+11652,Stimulus,presented,4
+11652,Stimulus,presented,37
+11752,Stimulus,presented,15
+11752,Stimulus,presented,0
+11752,Stimulus,presented,37
+11801,Stimulus,presented,15
+11801,Stimulus,presented,37
+12551,Keyboard,received,None,wait
+12751,Stimulus,presented,6
+12751,Stimulus,presented,0
+12751,Stimulus,presented,37
+12801,Stimulus,presented,6
+12801,Stimulus,presented,37
+13551,Keyboard,received,None,wait
+13751,Stimulus,presented,12
+13751,Stimulus,presented,0
+13751,Stimulus,presented,37
+13801,Stimulus,presented,12
+13801,Stimulus,presented,37
+14551,Keyboard,received,None,wait
+14751,Stimulus,presented,5
+14751,Stimulus,presented,0
+14751,Stimulus,presented,37
+14801,Stimulus,presented,5
+14801,Stimulus,presented,37
+15551,Keyboard,received,None,wait
+15751,Stimulus,presented,11
+15751,Stimulus,presented,0
+15751,Stimulus,presented,37
+15801,Stimulus,presented,11
+15801,Stimulus,presented,37
+16551,Keyboard,received,None,wait
+16751,Stimulus,presented,3
+16751,Stimulus,presented,0
+16751,Stimulus,presented,37
+16801,Stimulus,presented,3
+16801,Stimulus,presented,37
+17551,Keyboard,received,None,wait
+17751,Stimulus,presented,14
+17751,Stimulus,presented,0
+17751,Stimulus,presented,37
+17801,Stimulus,presented,14
+17801,Stimulus,presented,37
+18551,Keyboard,received,None,wait
+18751,Stimulus,presented,2
+18751,Stimulus,presented,0
+18751,Stimulus,presented,37
+18801,Stimulus,presented,2
+18801,Stimulus,presented,37
+19551,Keyboard,received,None,wait
+19751,Stimulus,presented,17
+19751,Stimulus,presented,0
+19751,Stimulus,presented,37
+19801,Stimulus,presented,17
+19801,Stimulus,presented,37
+20551,Keyboard,received,None,wait
+20751,Stimulus,presented,7
+20751,Stimulus,presented,0
+20751,Stimulus,presented,37
+20801,Stimulus,presented,7
+20801,Stimulus,presented,37
+21551,Keyboard,received,None,wait
+21551,Stimulus,presented,46
+21551,Stimulus,presented,7
+21551,Stimulus,presented,37
+21651,Stimulus,presented,7
+21651,Stimulus,presented,37
+21751,Stimulus,presented,13
+21751,Stimulus,presented,0
+21751,Stimulus,presented,37
+21801,Stimulus,presented,13
+21801,Stimulus,presented,37
+22551,Keyboard,received,None,wait
+22751,Stimulus,presented,4
+22751,Stimulus,presented,0
+22751,Stimulus,presented,37
+22801,Stimulus,presented,4
+22801,Stimulus,presented,37
+23551,Keyboard,received,None,wait
+23751,Stimulus,presented,11
+23751,Stimulus,presented,0
+23751,Stimulus,presented,37
+23801,Stimulus,presented,11
+23801,Stimulus,presented,37
+24551,Keyboard,received,None,wait
+24751,Stimulus,presented,6
+24751,Stimulus,presented,0
+24751,Stimulus,presented,37
+24801,Stimulus,presented,6
+24801,Stimulus,presented,37
+25552,Keyboard,received,None,wait
+25751,Stimulus,presented,16
+25751,Stimulus,presented,0
+25751,Stimulus,presented,37
+25801,Stimulus,presented,16
+25801,Stimulus,presented,37
+26551,Keyboard,received,None,wait
+26552,Stimulus,presented,46
+26552,Stimulus,presented,16
+26552,Stimulus,presented,37
+26652,Stimulus,presented,16
+26652,Stimulus,presented,37
+26751,Stimulus,presented,7
+26751,Stimulus,presented,0
+26751,Stimulus,presented,37
+26801,Stimulus,presented,7
+26801,Stimulus,presented,37
+27551,Keyboard,received,None,wait
+27751,Stimulus,presented,12
+27751,Stimulus,presented,0
+27751,Stimulus,presented,37
+27801,Stimulus,presented,12
+27801,Stimulus,presented,37
+28551,Keyboard,received,None,wait
+28751,Stimulus,presented,2
+28751,Stimulus,presented,0
+28751,Stimulus,presented,37
+28801,Stimulus,presented,2
+28801,Stimulus,presented,37
+29551,Keyboard,received,None,wait
+29551,Stimulus,presented,46
+29551,Stimulus,presented,2
+29551,Stimulus,presented,37
+29652,Stimulus,presented,2
+29652,Stimulus,presented,37
+29751,Stimulus,presented,15
+29751,Stimulus,presented,0
+29751,Stimulus,presented,37
+29801,Stimulus,presented,15
+29801,Stimulus,presented,37
+30551,Keyboard,received,None,wait
+30751,Stimulus,presented,8
+30751,Stimulus,presented,0
+30751,Stimulus,presented,37
+30801,Stimulus,presented,8
+30801,Stimulus,presented,37
+31551,Keyboard,received,None,wait
+31751,Stimulus,presented,12
+31751,Stimulus,presented,0
+31751,Stimulus,presented,37
+31801,Stimulus,presented,12
+31801,Stimulus,presented,37
+32551,Keyboard,received,None,wait
+32751,Stimulus,presented,8
+32751,Stimulus,presented,0
+32751,Stimulus,presented,37
+32801,Stimulus,presented,8
+32801,Stimulus,presented,37
+33243,Experiment,paused
+33246,Stimulus,presented,49
+34146,Keyboard,received,y,wait_char
+34146,Experiment,ended
+34148,Data,saved

@@ -1,0 +1,48 @@
+#Expyriment 1.0.0 (Python 3.11.6), .xpe-file, coding: UTF-8
+#date: Mon Oct 20 2025 09:10:27
+#sha1: a3868c
+#modules: constants.py (cf262f), hardware.py (b37856), eyelink.py (74605b)
+#display: size=(800, 600), window_mode=True, opengl=2
+#os: uname_result(system='Darwin', node='Barbus-MacBook-Air.local', release='24.6.0', version='Darwin Kernel Version 24.6.0: Mon Jul 14 11:30:51 PDT 2025; root:xnu-11417.140.69~1/RELEASE_ARM64_T8112', machine='arm64')
+Time,Type,Event,Value,Detail,Detail2
+548,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/louve.png
+550,stdout,received,'louve (120, 120)'
+554,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/poule.png
+555,stdout,received,'poule (80, 80)'
+559,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/tasse.png
+560,stdout,received,'tasse (96, 96)'
+563,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/malle.png
+564,stdout,received,'malle (120, 120)'
+568,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/carre.png
+569,stdout,received,'carre (80, 80)'
+572,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/cercle.png
+573,stdout,received,'cercle (80, 80)'
+576,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/etoile.png
+577,stdout,received,'etoile (80, 80)'
+580,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/croix.png
+580,stdout,received,'croix (80, 80)'
+583,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/pentagone.png
+584,stdout,received,'pentagone (80, 80)'
+587,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/losange.png
+588,stdout,received,'losange (80, 80)'
+610,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/instr_1.png
+614,stdout,received,'instr_1 (960, 540)'
+625,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/instr_2.png
+628,stdout,received,'instr_2 (960, 540)'
+645,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/instr_3.png
+650,stdout,received,'instr_3 (960, 540)'
+662,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/instr_4.png
+666,stdout,received,'instr_4 (960, 540)'
+683,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/instr_5.png
+687,stdout,received,'instr_5 (960, 540)'
+697,Picture,loaded,/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Stimuli/instr_6.png
+701,stdout,received,'instr_6 (960, 540)'
+3482,stderr,received,'Traceback (most recent call last):'
+3482,stderr,received,'  File "/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Scripts/experiment.py", line 266, in <module>'
+3482,stderr,received,'    control.start(subject_id=subject_id)'
+3482,stderr,received,'  File "/opt/homebrew/anaconda3/lib/python3.11/site-packages/expyriment/control/_experiment_control.py", line 209, in start'
+3482,stderr,received,'    experiment.keyboard.wait()'
+3482,stderr,received,'  File "/opt/homebrew/anaconda3/lib/python3.11/site-packages/expyriment/io/_keyboard.py", line 378, in wait'
+3483,stderr,received,'    for event in pygame.event.get([pygame.KEYDOWN, pygame.KEYUP]):'
+3483,stderr,received,'                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'
+3483,stderr,received,'KeyboardInterrupt'

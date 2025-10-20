@@ -1,0 +1,15 @@
+#Expyriment 1.0.0 (Python 3.11.6), .xpe-file, coding: UTF-8
+#date: Mon Oct 20 2025 08:53:52
+#sha1: 372a98
+#modules: constants.py (8cdad0), hardware.py (b37856), eyelink.py (74605b)
+#display: size=(800, 600), window_mode=True, opengl=2
+#os: uname_result(system='Darwin', node='Barbus-MacBook-Air.local', release='24.6.0', version='Darwin Kernel Version 24.6.0: Mon Jul 14 11:30:51 PDT 2025; root:xnu-11417.140.69~1/RELEASE_ARM64_T8112', machine='arm64')
+Time,Type,Event,Value,Detail,Detail2
+604,stderr,received,'Traceback (most recent call last):'
+604,stderr,received,'  File "/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Scripts/experiment.py", line 252, in <module>'
+604,stderr,received,'    images = {name: picture(name) for name in STIMS_TEST + SHAPES_TRAINING}'
+604,stderr,received,'             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'
+604,stderr,received,'  File "/Users/Barbu/Documents/Postdoc/Experiments/Pushmi/MEG/Scripts/experiment.py", line 252, in <dictcomp>'
+604,stderr,received,'    images = {name: picture(name) for name in STIMS_TEST + SHAPES_TRAINING}'
+604,stderr,received,'                    ^^^^^^^^^^^^^'
+604,stderr,received,"TypeError: picture() missing 1 required positional argument: 'scaling_factor'"

@@ -25,7 +25,7 @@ TRAINING_BLOCK_3_SIZE = 16  # Phase 3: No animation
 # =============================================================================
 
 SCALE_FACTOR = 2
-
+IMAGE_SCALING = 0.04
 # Colors (RGB tuples)
 GREEN = (153, 229, 153)      # Correct feedback
 RED = (240, 128, 128)        # Incorrect feedback
@@ -33,8 +33,7 @@ LIGHTGRAY = (211, 211, 211)  # Timeout feedback
 
 # Stimulus dimensions (scaled)
 TEXTSIZE = int(24 * SCALE_FACTOR)
-SHAPE_WIDTH = int(40 * SCALE_FACTOR)
-IMAGE_WIDTH = int(60 * SCALE_FACTOR)
+SHAPE_WIDTH = int(1000 * IMAGE_SCALING * SCALE_FACTOR)
 HALFWIDTH = SHAPE_WIDTH // 2
 DISPLACEMENT = int(100 * SCALE_FACTOR)
 
@@ -53,21 +52,21 @@ DISPLACEMENT = int(100 * SCALE_FACTOR)
 # STIMULUS SETS
 # =============================================================================
 # Main experiment stimuli
-NOUNS = {'louve': {'type': 'animal', 'gender': 'feminine', 'phase': 'test'}, 
-         'poule': {'type': 'animal', 'gender': 'feminine', 'phase': 'test'}, 
-         'tasse': {'type': 'object', 'gender': 'feminine', 'phase': 'test'}, 
-         'malle': {'type': 'object', 'gender': 'feminine', 'phase': 'test'}, 
-         'carre': {'type': 'shape', 'gender': 'masculine', 'phase': 'test', 'spelling': 'carré'}, 
-         'cercle': {'type': 'shape', 'gender': 'masculine', 'phase': 'test'}, 
-         'etoile': {'type': 'shape', 'gender': 'masculine', 'phase': 'test', 'spelling': 'étoile'}, 
-         'croix': {'type': 'shape', 'gender': 'masculine', 'phase': 'test'}, 
+NOUNS = {'louve': {'type': 'animal', 'gender': 'feminine', 'phase': 'test', 'scale': IMAGE_SCALING * SCALE_FACTOR * 1.5}, 
+         'poule': {'type': 'animal', 'gender': 'feminine', 'phase': 'test', 'scale': IMAGE_SCALING * SCALE_FACTOR}, 
+         'tasse': {'type': 'object', 'gender': 'feminine', 'phase': 'test', 'scale': IMAGE_SCALING * SCALE_FACTOR * 1.2}, 
+         'malle': {'type': 'object', 'gender': 'feminine', 'phase': 'test', 'scale': IMAGE_SCALING * SCALE_FACTOR * 1.5}, 
+         'carre': {'type': 'shape', 'gender': 'masculine', 'phase': 'test', 'spelling': 'carré', 'scale': IMAGE_SCALING * SCALE_FACTOR}, 
+         'cercle': {'type': 'shape', 'gender': 'masculine', 'phase': 'test', 'scale': IMAGE_SCALING * SCALE_FACTOR}, 
+         'etoile': {'type': 'shape', 'gender': 'masculine', 'phase': 'test', 'spelling': 'étoile', 'scale': IMAGE_SCALING * SCALE_FACTOR}, 
+         'croix': {'type': 'shape', 'gender': 'masculine', 'phase': 'test', 'scale': IMAGE_SCALING * SCALE_FACTOR}, 
          'renard': {'type': 'animal', 'gender': 'masculine', 'phase': 'training'}, 
-         'pigeon': {'type': 'animal', 'gender': 'masculine', 'phase': 'training'}, 
-         'marteau': {'type': 'object', 'gender': 'masculine', 'phase': 'training'}, 
+         'pigeon': {'type': 'animal', 'gender': 'masculine', 'phase': 'training'},
+         'marteau': {'type': 'object', 'gender': 'masculine', 'phase': 'training'},
          'crayon': {'type': 'object', 'gender': 'masculine', 'phase': 'training'}, 
-         'pentagone': {'type': 'shape', 'gender': 'masculine', 'phase': 'training'}, 
+         'pentagone': {'type': 'shape', 'gender': 'masculine', 'phase': 'training', 'scale': IMAGE_SCALING * SCALE_FACTOR}, 
          'hexagone': {'type': 'shape', 'gender': 'vowel', 'phase': None}, 
-         'losange': {'type': 'shape', 'gender': 'masculine', 'phase': 'training'}, 
+         'losange': {'type': 'shape', 'gender': 'masculine', 'phase': 'training', 'scale': IMAGE_SCALING * SCALE_FACTOR}, 
          'ellipse': {'type': 'shape', 'gender': 'vowel', 'phase': None}, 
 }
 
@@ -81,11 +80,11 @@ ANIMALS_TRAINING = [k for k, v in NOUNS.items() if v["phase"] == "training" and 
 OBJECTS_TRAINING = [k for k, v in NOUNS.items() if v["phase"] == "training" and v["type"] == "object"]
 SHAPES_TRAINING = [k for k, v in NOUNS.items() if v["phase"] == "training" and v["type"] == "shape"]
 
-# Stimulus sizes (scale factors)
-SIZES = {
-    k: (IMAGE_WIDTH if k in ['louve', 'malle'] else SHAPE_WIDTH) / 1000 
-    for k in STIMS_TEST + SHAPES_TRAINING
-}
+# # Stimulus sizes (scale factors)
+# SIZES = {
+#     k: (IMAGE_WIDTH if k in ['louve', 'malle', 'tasse'] else SHAPE_WIDTH) / 1000 
+#     for k in STIMS_TEST + SHAPES_TRAINING
+# }
 
 # =============================================================================
 # FRENCH LANGUAGE PROPERTIES

@@ -12,10 +12,12 @@ def preload(stimulus):
     stimulus.preload()
     return stimulus
 
-def picture(filename, scale_factor):
+def picture(stimulus, scaling_factor=None):
     """Load and scale an image stimulus."""
-    stim = stimuli.Picture(str(STIM_DIR / f"{filename}.png"), position=ORIGIN)
-    stim.scale(scale_factor)
+    stim = stimuli.Picture(str(STIM_DIR / f"{stimulus}.png"), position=ORIGIN)
+    if scaling_factor is None:
+        scaling_factor = NOUNS[stimulus]['scale']
+    stim.scale(scaling_factor)
     return preload(stim)
 
 def word(string):
@@ -53,7 +55,7 @@ def draw_wait_time(*stims, duration, pulse=True, event=None):
         draw_flip(*stims)
     remaining = max(0, duration - (exp.clock.time - t0))
     exp.clock.wait(max(0, remaining))
-    #logger.info(f"{event} duration: {exp.clock.time - t0} ms")
+    logger.info(f"{event} duration: {exp.clock.time - t0} ms")
 
 def draw_wait_keys(*stims, keys, pulse=True, event=None, timeout=float('inf')):
     t0 = exp.clock.time
@@ -206,6 +208,7 @@ def take_break(message):
     """Display break message and wait for spacebar."""
     if hardware.eyetracker:
         hardware.eyetracker.stop_recording()
+    exp.data.save()
     show_instructions(message)
     if hardware.eyetracker:
         hardware.eyetracker.start_new_block()
@@ -227,6 +230,7 @@ if __name__ == '__main__':
         OFFSET_X, ORIGIN = 0, (0, 0)
         SCALE_INSTR = 0.5
         control.set_develop_mode(skip_wait_methods=False)
+        logger.disabled = True
 
     hardware = HardwareManager(subject_id, 'meg' in flags, 'eyetracker' in flags).setup()
     response_keys, response_buttons = [K_f, K_j], hardware.response_keys if hardware.meg_handler else None
@@ -246,7 +250,7 @@ if __name__ == '__main__':
     w, h = exp.screen.size
 
     pulse = preload(stimuli.Rectangle((50, 50), position=(w//2 - 50, -h//2 + 50)))
-    images = {name: picture(name, SIZES[name]) for name in STIMS_TEST + SHAPES_TRAINING}
+    images = {name: picture(name) for name in STIMS_TEST + SHAPES_TRAINING}
     words = {noun: word(noun) for noun in SENTENCE_STIMS}
     fixation_dot = preload(stimuli.Circle(2.5 * SCALE_FACTOR, position=ORIGIN, colour=C_GREY))
     
@@ -269,7 +273,7 @@ if __name__ == '__main__':
         for block in localizer_trials:
             for params in block:
                 run_localizer_trial(**params)
-        take_break(pause_message)
+            take_break(pause_message)
     
     if 'training' in flags:
         show_instructions(instructions["training_intro"])
